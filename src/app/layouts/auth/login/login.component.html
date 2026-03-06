@@ -1,0 +1,63 @@
+<div class="login-page">
+  
+  <div class="login-container">
+    
+    <div class="login-header">
+      <div class="logo flex items-center">
+         <img src="logo.png" alt="EducationPriorité" class="h-16 w-auto object-contain" />
+        <h1 class="text-[#e11d48] font-bold text-4xl hidden lg:block">EducationPriorité</h1>
+      </div>
+      <p class="subtitle">Reprends ton apprentissage là où tu l'as laissé</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="login()" class="login-form">
+      
+      <div class="form-group">
+        <label for="email" class="form-label">Email *</label>
+        <input pInputText 
+               id="email"
+               formControlName="email"
+               type="email"
+               placeholder="exemple@email.com"
+               class="w-full">
+        @if (hasError('email')) {
+          <small class="error-text">{{ getErrorMessage('email') }}</small>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Mot de passe *</label>
+        <div class="password-container">
+          <input pInputText 
+                 id="password"
+                 formControlName="password"
+                 type="password"
+                 placeholder="Ton mot de passe"
+                 class="w-full password-input">
+        </div>
+        @if (hasError('password')) {
+          <small class="error-text">{{ getErrorMessage('password') }}</small>
+        }
+        
+      </div>
+
+      <div class="form-actions">
+        <button pButton 
+                type="submit"
+                label="Se connecter"
+                [disabled]="loginForm.invalid"
+                class="login-btn w-full">
+         
+        </button>
+      </div>
+
+    </form>
+
+    <div class="register-link">
+      <span>Pas encore de compte?</span>
+      <a routerLink="/register" class="link">S'inscrire</a>
+    </div>
+
+  </div>
+
+</div>

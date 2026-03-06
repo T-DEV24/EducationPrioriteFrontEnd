@@ -1,0 +1,216 @@
+<main class="home-page">
+
+  <section class="hero sm:px-8">
+    <div class="hero-bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+    <div class="hero-inner">
+      <div class="hero-text">
+        <span class="hero-eyebrow">
+          <span class="eyebrow-dot"></span>
+          Média éducatif numérique
+        </span>
+        <h1 class="hero-title">
+          L'excellence<br>
+          <em>éducative</em><br>
+          à portée de main.
+        </h1>
+        <p class="hero-desc">
+          Enquêtes exclusives, dossiers thématiques et journaux PDF premium —
+          tout ce qu'il faut pour rester au cœur de l'actualité scolaire.
+        </p>
+        <div class="hero-cta">
+          <a routerLink="/child/journal" class="cta-primary">
+            <i class="pi pi-book"></i> Explorer les journaux
+          </a>
+          @if (!isAuthenticated) {
+            <a routerLink="/register" class="cta-secondary">
+              Nous rejoindre <i class="pi pi-arrow-right"></i>
+            </a>
+          }
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-card-stack">
+          <div class="hcard hcard-back">
+            <div class="hcard-label">Journal PDF</div>
+            <i class="pi pi-file-pdf hcard-icon"></i>
+          </div>
+          <div class="hcard hcard-mid">
+            <div class="hcard-label">Rubrique</div>
+            <i class="pi pi-bookmark hcard-icon"></i>
+          </div>
+          <div class="hcard hcard-front">
+            <div class="hcard-tag">Nouveau</div>
+            <div class="hcard-label">À la une</div>
+            <i class="pi pi-star hcard-icon"></i>
+            <div class="hcard-title">Actualité scolaire 2025</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-stats-bar" >
+      <div class="stat-item">
+        <span class="stat-number">128+</span>
+        <span class="stat-label">Journaux PDF</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number">500+</span>
+        <span class="stat-label">Articles publiés</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number">12</span>
+        <span class="stat-label">Rubriques actives</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number">2K+</span>
+        <span class="stat-label">Utilisateurs</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="modules-section">
+    <div class="section-header">
+      <span class="section-label">Ce que nous offrons</span>
+      <h2 class="section-title">Une plateforme, <strong>quatre univers</strong></h2>
+      <p class="section-desc">Découvrez tous les modules de notre écosystème éducatif, conçus pour informer, organiser et connecter.</p>
+    </div>
+
+    <div class="modules-grid">
+      <div class="module-card" routerLink="/child/rubrique">
+        <div class="module-accent mod-red"></div>
+        <div class="module-icon-wrap mod-red-soft"><i class="pi pi-th-large"></i></div>
+        <div class="module-number">01</div>
+        <h3 class="module-title">Rubriques</h3>
+        <p class="module-desc">Naviguez à travers nos grandes thématiques : pédagogie, réformes, numérique, orientation.</p>
+        <div class="module-features">
+          <span><i class="pi pi-check-circle"></i> Thèmes classifiés</span>
+          <span><i class="pi pi-check-circle"></i> Mise à jour régulière</span>
+          <span><i class="pi pi-check-circle"></i> Filtres avancés</span>
+        </div>
+        <div class="module-cta">Explorer <i class="pi pi-arrow-right"></i></div>
+      </div>
+
+      <div class="module-card module-card--featured" routerLink="/child/rubrique">
+        <div class="module-accent mod-white"></div>
+        <div class="module-icon-wrap mod-white-soft"><i class="pi pi-pencil"></i></div>
+        <div class="module-number">02</div>
+        <h3 class="module-title">Articles</h3>
+        <p class="module-desc">Enquêtes exclusives, analyses de fond et reportages signés par nos journalistes éducatifs.</p>
+        <div class="module-features">
+          <span><i class="pi pi-check-circle"></i> Contenu exclusif</span>
+          <span><i class="pi pi-check-circle"></i> Auteurs experts</span>
+          <span><i class="pi pi-check-circle"></i> Format enrichi</span>
+        </div>
+        <div class="module-cta">Lire <i class="pi pi-arrow-right"></i></div>
+      </div>
+
+      <div class="module-card" routerLink="/child/journal">
+        <div class="module-accent mod-rose"></div>
+        <div class="module-icon-wrap mod-rose-soft"><i class="pi pi-file-pdf"></i></div>
+        <div class="module-number">03</div>
+        <h3 class="module-title">Journaux PDF</h3>
+        <p class="module-desc">Téléchargez nos éditions mensuelles. Une bibliothèque complète toujours disponible.</p>
+        <div class="module-features">
+          <span><i class="pi pi-check-circle"></i> Éditions mensuelles</span>
+          <span><i class="pi pi-check-circle"></i> Téléchargement libre</span>
+          <span><i class="pi pi-check-circle"></i> Archives complètes</span>
+        </div>
+        <div class="module-cta">Télécharger <i class="pi pi-arrow-right"></i></div>
+      </div>
+
+      <div class="module-card"  >
+        <div class="module-accent mod-slate"></div>
+        <div class="module-icon-wrap mod-slate-soft"><i class="pi pi-users"></i></div>
+        <div class="module-number">04</div>
+        <h3 class="module-title">Espace membres</h3>
+        <p class="module-desc">Gérez votre profil et rejoignez une communauté de professionnels de l'éducation.</p>
+        <div class="module-features">
+          <span><i class="pi pi-check-circle"></i> Profil personnalisé</span>
+          <span><i class="pi pi-check-circle"></i> Rôles & permissions</span>
+          <span><i class="pi pi-check-circle"></i> Communauté active</span>
+        </div>
+        <div class="module-cta" *appHasRole="['ADMIN', 'SUPER_ADMIN']" routerLink="/child/utilisateur">Accéder <i class="pi pi-arrow-right"></i></div>
+      </div>
+    </div>
+  </section>
+
+  @if (isAuthenticated) {
+    <section class="content-section">
+      <div class="content-section-header">
+        <div>
+          <span class="section-label">Publications récentes</span>
+          <h2 class="content-section-title">Derniers journaux</h2>
+        </div>
+        <a routerLink="/child/journal" class="see-all-btn">Voir tout <i class="pi pi-arrow-right"></i></a>
+      </div>
+      <div class="journals-grid">
+        @for (journal of journals; track journal.id) {
+          <div class="journal-card" routerLink="/child/journal">
+            <div class="journal-cover">
+              <span class="journal-status" [class.active]="journal.statut === 'ACTIF'">{{ journal.statut }}</span>
+              @if (imageUrls['journal-' + journal.id]) {
+                <img [src]="imageUrls['journal-' + journal.id]" class="journal-cover-img" [alt]="journal.titre">
+              } @else {
+                <div class="journal-cover-placeholder"><i class="pi pi-book"></i></div>
+              }
+            </div>
+            <div class="journal-info">
+              <h4 class="journal-title">{{ journal.titre }}</h4>
+              <span class="journal-link">Consulter <i class="pi pi-chevron-right"></i></span>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="content-section">
+      <div class="content-section-header">
+        <div>
+          <span class="section-label">Sélection éditoriale</span>
+          <h2 class="content-section-title">À la une</h2>
+        </div>
+        <a routerLink="/child/rubrique" class="see-all-btn">Voir tout <i class="pi pi-arrow-right"></i></a>
+      </div>
+      <div class="articles-grid">
+        @for (art of featuredArticles; track art.id) {
+          <div class="article-card" [routerLink]="['/child/article', art.rubriqueId, art.rubriqueNom]">
+            <div class="article-img-wrap">
+              @if (imageUrls['articles-' + art.id]) {
+                <img [src]="imageUrls['articles-' + art.id]" class="article-img" alt="">
+              } @else {
+                <div class="article-img-placeholder"><i class="pi pi-image"></i></div>
+              }
+            </div>
+            <div class="article-body">
+              <span class="article-rubrique">{{ art.rubriqueNom || 'Actualité' }}</span>
+              <h4 class="article-title">{{ art.titre }}</h4>
+              <span class="article-date"><i class="pi pi-calendar"></i> {{ art.datePublication | date:'dd MMM yyyy' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  @if (!isAuthenticated) {
+    <section class="cta-banner">
+      <div class="cta-banner-inner">
+        <div class="cta-banner-text">
+          <h2>Rejoignez la communauté</h2>
+          <p>Créez votre compte gratuitement et accédez à l'intégralité du contenu premium.</p>
+        </div>
+        <div class="cta-banner-actions">
+          <a routerLink="/register" class="cta-primary">Créer un compte</a>
+          <a routerLink="/login" class="cta-ghost">Se connecter</a>
+        </div>
+      </div>
+    </section>
+  }
+
+</main>

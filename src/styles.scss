@@ -1,0 +1,116 @@
+/* You can add global styles to this file, and also import other style files */
+/* 1. TAILWIND - EN PREMIER */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "primeicons/primeicons.css";
+
+/* Overrides pour correspondre à ta palette */
+.p-button.p-button-text {
+  color: #6b7280;
+}
+
+.p-button.p-button-text:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.p-inputtext:enabled:hover {
+  border-color: #9ca3af;
+}
+
+.p-inputtext:enabled:focus {
+  box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2);
+  border-color: #3b82f6;
+}
+
+
+
+/* sidebar
+ styles.css ou app.component.css */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-wrapper {
+  display: flex;
+  flex: 1;
+  position: relative;
+}
+
+.content-area {
+  flex: 1;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  min-height: calc(100vh - 64px); /* Hauteur moins header */
+}
+
+@media (max-width: 768px) {
+  .content-area {
+    padding: 1rem;
+    min-height: calc(100vh - 56px);
+  }
+}
+
+/* Animation pour sidebar mobile */
+app-sidebar {
+  transition: transform 0.3s ease;
+}
+
+app-sidebar.show-mobile {
+  transform: translateX(0);
+}
+
+
+/* footer
+ app.component.css ou styles.css */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-layout {
+  display: flex;
+  flex: 1;
+}
+
+.sidebar-desktop {
+  width: 280px;
+  flex-shrink: 0;
+}
+
+.content-area {
+  flex: 1;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  overflow-y: auto;
+  min-height: calc(100vh - 140px); /* Hauteur moins header et footer */
+}
+
+.mobile-menu-btn {
+  position: fixed;
+  bottom: 5rem;
+  right: 1.5rem;
+  z-index: 1000;
+  display: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar-desktop {
+    display: none;
+  }
+  
+  .content-area {
+    padding: 1rem;
+    min-height: calc(100vh - 120px);
+  }
+  
+  .mobile-menu-btn {
+    display: block;
+  }
+}

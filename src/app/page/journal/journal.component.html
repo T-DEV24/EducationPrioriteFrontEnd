@@ -1,0 +1,445 @@
+<div class="min-h-screen bg-[#fcfcfc] font-sans antialiased text-slate-900">
+
+  <div class="p-10 md:p-12 bg-gradient-to-r from-[#e11d48] to-[#fb7185] shadow-xl">
+    <div class="w-full mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      
+      <div class="flex flex-col gap-3">
+        <span class="text-[0.65rem] font-extrabold tracking-[0.15em] uppercase text-white/75">JOURNAUX PDF</span>
+        <h1 class="text-3xl md:text-4xl font-black text-white leading-tight m-0">Bibliothèque centrale des journaux</h1>
+        <p class="text-sm text-white/80 leading-relaxed max-w-md m-0">
+         Accédez à l'ensemble de nos éditions PDF. Téléchargez et consultez 
+         librement chaque numéro, des plus récents aux archives complètes.
+        </p>
+        <div class="flex flex-wrap gap-3 mt-4" *appHasRole="['ADMIN', 'SUPER_ADMIN']">
+          <button (click)="openNew()" class="flex items-center gap-2 bg-white text-[#e8354a] px-6 py-3 rounded-xl font-extrabold text-sm shadow-lg hover:bg-red-50 transition-all transform hover:-translate-y-0.5">
+            <i class="pi pi-plus font-bold"></i> Ajouter un journal
+          </button>
+          
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-4 float-start">
+        <div class="relative shadow-2xl rounded-2xl overflow-hidden">
+          <i class="pi pi-search absolute left-4 top-1/2 -translate-y-1/2 text-white/60 group-focus-within:text-white transition-colors"></i>
+          <input type="text" [(ngModel)]="searchTerm" placeholder="Rechercher un journal..." 
+                  class="w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-white placeholder:text-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 transition-all" />
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <span class="flex items-center gap-2 bg-white/20 border border-white/30 text-white/90 px-4 py-1.5 rounded-full text-[0.72rem] font-bold backdrop-blur-md">
+            <i class="pi pi-file-pdf"></i> {{ filteredJournals.length }} journaux
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="px-4 sm:px-8 py-5 flex flex-wrap items-center justify-between gap-4">
+    <div class="flex gap-2 flex-wrap">
+      <button *ngFor="let opt of statutOptions"
+              (click)="selectedStatut = opt.value"
+              [class]="selectedStatut === opt.value 
+                ? 'bg-[#e8354a] text-white border-[#e8354a] shadow-[0_4px_12px_rgba(232,53,74,0.35)]' 
+                : 'bg-white text-slate-500 border-slate-200 hover:border-red-400 hover:text-[#e8354a]'"
+              class="flex items-center gap-2 px-5 py-2 rounded-full border-1.5 font-bold text-xs transition-all cursor-pointer"
+              >
+        <i [class]="selectedStatut === opt.value ? 'pi pi-check-circle' : 'pi pi-circle'" class="text-[0.75rem]"></i>
+        {{ opt.label }}
+      </button>
+      <div class="relative shrink-0 w-48">
+        <p-datepicker  
+          [(ngModel)]="selectedDate" 
+          placeholder="Filtrer par date" 
+          [showClear]="true"
+          [iconDisplay]="'input'" 
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+          styleClass="modern-calendar w-full">
+        </p-datepicker>
+      </div>
+    </div>
+    <span class="text-[0.75rem] text-slate-400 italic font-medium">Cliquez sur une couverture pour voir les détails</span>
+  </div>
+
+  <div class="bg-white p-3 sm:p-6 rounded-2xl border border-slate-200 shadow-sm overflow-hidden mx-2 md:mx-4 mb-6">
+  
+    <div class="mb-6">
+      <h2 class="text-[1.1rem] font-[800] text-slate-800 m-0 mb-1">Galerie des journaux</h2>
+      <p class="text-[0.8rem] text-[#f35f75] m-0 font-medium">
+        Chaque carte représente un journal PDF.
+      </p>
+    </div>
+
+   <div class="grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6">
+    @for (j of filteredJournals; track j.id) {
+      <div (click)="showDetails(j)" 
+           class="group bg-white border border-slate-100  overflow-hidden cursor-pointer shadow-lg shadow-red-200 hover:-translate-y-0.5 transition-all duration-200">
+        
+              <div class="relative h-[200px] bg-gradient-to-r from-[#e11d48] to-[#fb7185] flex items-center justify-center overflow-hidden p-2 transition-all duration-300 group-hover:p-0">
+
+                <div class="w-full h-full overflow-hidden rounded-lg transition-all duration-500 group-hover:rounded-none">
+
+                  @if (imageUrls[j.id]) {
+                    <img [src]="imageUrls[j.id]" 
+                        class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110" 
+                        alt="couverture" />
+                  } @else {
+                    <div class="flex items-center justify-center w-full h-full transition-transform duration-500 ease-out group-hover:scale-110">
+                      <i class="pi pi-book text-white/50 text-[3rem]"></i>
+                    </div>
+                  }
+
+                </div>
+
+                <span [class]="j.statut === 'ACTIF' 
+                        ? 'bg-[#10b981] text-white' 
+                        : 'bg-white/85 text-slate-500'" 
+                      class="absolute bottom-3 right-3 rounded-lg px-3 py-1.5 text-[0.7rem] font-[800] z-10 shadow-sm">
+                  {{ j.statut === 'ACTIF' ? 'ACTIF' : 'INACTIF' }}
+                </span>
+              </div>
+
+        <div class="p-4 md:p-5">
+          <div class="flex justify-between items-start flex-col sm:flex-row gap-2 mb-1.5">
+            <h3 class="text-[0.95rem] font-[800] text-slate-800 m-0 flex-1 sm:truncate">{{ j.titre }}</h3>
+            <span class="text-[0.68rem] text-[#f87187] font-[600] whitespace-nowrap pt-1">
+              Ajouté le {{ j.dateAjout | date:'dd/MM/yyyy' }}
+            </span>
+          </div>
+          <div class="flex flex-wrap gap-x-2 gap-y-1 text-[0.68rem] font-[600]">
+            <span class="text-[#f87187]">Slug : {{ j.slug }}</span>
+            
+          </div>
+        </div>
+        <hr>
+        <div class="flex items-center justify-between flex-col sm:flex-row p-2 px-5 border-t border-slate-50 gap-4" (click)="$event.stopPropagation() ">
+          
+          <div class="hidden sm:flex items-center gap-1.5 text-[0.7rem] font-[600] text-slate-500 overflow-hidden mr-2">
+            <span [class]="j.statut === 'ACTIF' ? 'bg-[#e8354a]' : 'bg-slate-300'" 
+                  class="w-[6px] h-[6px]  rounded-full shrink-0"></span>
+            <span class="truncate text-[#f87187]">Fichier : {{ getShortFileName(j.fichierPdf) }}</span>
+          </div>
+
+          <div class="flex gap-1.5 shrink-0">
+            <button (click)="showDetails(j); $event.stopPropagation()" 
+                    class="w-[34px] h-[34px] rounded-lg bg-slate-50 text-slate-500 flex items-center justify-center text-[0.8rem] hover:bg-slate-100 hover:text-slate-700 transition-all">
+              <i class="pi pi-eye"></i>
+            </button>
+            <button (click)="downloadPdf(j.fichierPdf); $event.stopPropagation()" 
+                    class="w-[34px] h-[34px] rounded-lg bg-[#fff5f5] text-[#e8354a] flex items-center justify-center text-[0.8rem] hover:bg-[#fee2e2] transition-all">
+              <i class="pi pi-download"></i>
+            </button>
+            <button (click)="editJournal(j); $event.stopPropagation()" 
+                    class="w-[34px] h-[34px] rounded-lg bg-slate-50 text-slate-500 flex items-center justify-center text-[0.8rem] hover:bg-slate-100 hover:text-slate-700 transition-all" *appHasRole="['ADMIN', 'SUPER_ADMIN']">
+              <i class="pi pi-pencil"></i>
+            </button>
+            <button (click)="deleteJournal(j.id); $event.stopPropagation()" 
+                    class="w-[34px] h-[34px] rounded-lg bg-[#fff5f5] text-[#e8354a] flex items-center justify-center text-[0.8rem] hover:bg-[#fee2e2] transition-all" *appHasRole="['ADMIN', 'SUPER_ADMIN']">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <div class="col-span-full text-center py-20 bg-white rounded-[2rem] border-2 border-dashed border-slate-100">
+        <i class="pi pi-inbox text-slate-200 text-[3rem] block mb-4"></i>
+        <p class="text-[0.875rem] font-[700] text-slate-400 uppercase tracking-widest m-0">
+          Aucun journal trouvé
+        </p>
+      </div>
+    }
+  </div>
+</div>
+
+  <p-dialog [(visible)]="journalDialog" [modal]="true" [showHeader]="false" 
+            [style]="{width: '98vw', maxWidth: '1300px', border: 'none'}" 
+            styleClass="p-0 overflow-hidden rounded-[1.5rem]" *appHasRole="['ADMIN', 'SUPER_ADMIN']">
+    
+    <div class="min-h-screen bg-[#fcfcfc] font-sans antialiased text-slate-900">
+
+  <div class="m-2 p-4 sm:m-6 sm:p-8 md:p-12 rounded-[1.5rem] bg-gradient-to-r from-[#e11d48] to-[#fb7185] shadow-xl text-white">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+      
+      <div class="flex-1 space-y-4">
+        <span class="text-[0.65rem] font-extrabold tracking-[0.15em] uppercase opacity-80">JOURNAUX PDF</span>
+        <h1 class="text-3xl md:text-4xl font-black leading-tight m-0">
+          {{ selectedId ? 'Modifier le journal' : 'Nouveau journal PDF' }}
+        </h1>
+        <p class="text-sm opacity-90 leading-relaxed max-w-lg m-0">
+          Créez un nouveau numéro en quelques secondes : titre, statut, description puis ajoutez votre image de couverture et le fichier PDF.
+        </p>
+        <button (click)="goBack()" class="mt-2 flex items-center gap-2 bg-white/20 border border-white/40 px-5 py-2.5 rounded-xl font-bold text-xs backdrop-blur-sm hover:bg-white/30 transition-all">
+          <i class="pi pi-arrow-left"></i> Retour à la galerie des journaux
+        </button>
+      </div>
+
+      <div class="hidden sm:inline w-full md:w-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 gap-3">
+          <div class="bg-white/15 border border-white/25 backdrop-blur-md p-4 rounded-2xl flex flex-col gap-1 min-w-[240px]">
+            <span class="text-[0.65rem] font-bold uppercase opacity-70">Statut sélectionné</span>
+            <span class="text-sm font-black flex items-center gap-2">
+              <i class="pi pi-check-circle"></i> {{ journal.statut || 'Publié' }}
+            </span>
+          </div>
+          <div class="bg-white/15 border border-white/25 backdrop-blur-md p-4 rounded-2xl flex flex-col gap-1 min-w-[240px]">
+            <span class="text-[0.65rem] font-bold uppercase opacity-70">Fichier PDF</span>
+            <span class="text-[0.75rem] font-bold truncate max-w-[200px] opacity-90">
+              {{ pdfFile ? pdfFile.name : 'Aucun fichier choisi' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="px-2 sm:px-10 pb-12">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      
+      <div class="bg-white border border-slate-200 rounded-[1.25rem] p-5 sm:p-7 shadow-sm flex flex-col gap-5">
+        <div class="border-b border-slate-100 pb-4">
+          <h2 class="text-base font-extrabold text-slate-800 m-0">Informations du journal</h2>
+          <p class="text-[0.78rem] text-[#e8354a] font-medium m-0">Renseignez les champs principaux</p>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <div class="flex justify-between items-center">
+            <label class="text-[0.8rem] font-bold text-slate-700">Titre du journal</label>
+            <span class="hidden sm:inline text-[0.7rem] text-[#e8354a] font-semibold">Obligatoire</span>
+          </div>
+          <div class="flex items-center gap-3 px-4 py-3 bg-white border border-slate-200 rounded-xl focus-within:border-[#f87187] focus-within:ring-4 focus-within:ring-red-50 transition-all">
+            <i class="pi pi-tag text-slate-400 text-sm"></i>
+            <input type="text" [(ngModel)]="journal.titre" placeholder="Saisissez le titre complet du numéro..." 
+                   class="w-full outline-none text-sm text-slate-700 placeholder-slate-400 bg-transparent" />
+          </div>
+          @if (submitted && !journal.titre) {
+            <small class="text-[0.72rem] text-[#e8354a] font-bold">Le titre est requis.</small>
+          }
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <div class="flex justify-between items-center">
+            <label class="text-[0.8rem] font-bold text-slate-700">Statut du journal</label>
+            <span class="text-[0.7rem] text-slate-400">Valeur: StatutJournal</span>
+          </div>
+          <div class="relative flex items-center">
+            <p-dropdown [options]="statutDropdown" [(ngModel)]="journal.statut"
+                        placeholder="Sélectionner un statut..."
+                        styleClass="w-full custom-form-dropdown pl-7"></p-dropdown>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5 flex-1">
+          <div class="flex justify-between items-center">
+            <label class="text-[0.8rem] font-bold text-slate-700">Description</label>
+            <span class="hidden sm:inline text-[0.7rem] text-emerald-500 font-semibold">Optionnel</span>
+          </div>
+          <textarea [(ngModel)]="journal.description" rows="5"
+                    placeholder="Décrivez brièvement le contenu de ce numéro..."
+                    class="w-full h-full p-4 border border-slate-200 rounded-xl text-sm text-slate-700 outline-none focus:border-[#f87187] focus:ring-4 focus:ring-red-50 transition-all resize-none leading-relaxed"></textarea>
+        </div>
+      </div>
+
+      <div class="bg-white border border-slate-200 rounded-[1.25rem] p-5 sm:p-7 shadow-sm flex flex-col gap-5">
+        <div class="border-b border-slate-100 pb-4">
+          <h2 class="text-base font-extrabold text-slate-800 m-0">Fichiers associés</h2>
+          <p class="text-[0.78rem] text-[#e8354a] font-medium m-0">Image de couverture & fichier PDF du journal.</p>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col gap-3">
+          <div class="flex justify-between items-center">
+            <span class="text-[0.85rem] font-extrabold text-slate-800 flex items-center gap-2">
+              <i class="pi pi-image text-[#e8354a]"></i> Image de couverture
+            </span>
+            <span class="hidden sm:inline text-[0.68rem] text-[#e8354a] font-bold uppercase">1200×1600px</span>
+          </div>
+          <p class="text-[0.78rem] text-slate-500 m-0">Déposez une image ici ou</p>
+          <label class="inline-flex items-center justify-center gap-2 bg-white text-slate-600 border-1.5 border-slate-200 rounded-lg py-2 text-[0.78rem] font-bold cursor-pointer hover:border-[#f87187] hover:text-[#e8354a] transition-all">
+            <i class="pi pi-upload text-xs"></i> Choisir un fichier
+            <input type="file" (change)="onFileChange($event, 'cover')" accept="image/*" hidden>
+          </label>
+          <div class="w-full aspect-[40/20] sm:aspect-[40/10] overflow-hidden bg-gradient-to-r from-[#e11d48] to-[#fb7185] flex items-center justify-center mt-1 p-1">
+            <img *ngIf="coverPreview" [src]="coverPreview" class="w-full h-full object-cover" />
+            <i *ngIf="!coverPreview" class="pi pi-book text-white/50 text-4xl"></i>
+          </div>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col gap-3">
+          <div class="flex justify-between items-center">
+            <span class="text-[0.85rem] font-extrabold text-slate-800 flex items-center gap-2">
+              <i class="pi pi-file-pdf text-[#e8354a]"></i> Fichier PDF du journal
+            </span>
+            <span class="hidden sm:inline text-[0.68rem] text-[#e8354a] font-bold uppercase">PDF obligatoire</span>
+          </div>
+          <label class="inline-flex items-center justify-center gap-2 bg-white text-slate-600 border-1.5 border-slate-200 rounded-lg py-2 text-[0.78rem] font-bold cursor-pointer hover:border-[#f87187] hover:text-[#e8354a] transition-all">
+            <i class="pi pi-upload text-xs"></i> Sélectionner le PDF
+            <input type="file" (change)="onFileChange($event, 'pdf')" accept=".pdf" hidden>
+          </label>
+          <div class="mt-1">
+            <p *ngIf="pdfFile" class="text-[0.75rem] text-emerald-600 font-bold m-0 flex items-center gap-2">
+              <i class="pi pi-check"></i> {{ pdfFile.name }}
+            </p>
+            <div *ngIf="!pdfFile" class="space-y-1">
+              <p class="text-[0.75rem] text-slate-400 m-0 flex items-center gap-2 italic">Aucun PDF sélectionné.</p>
+              <p class="text-[0.65rem] text-slate-400 m-0 italic">Taille max recommandée : 20 Mo.</p>
+            </div>
+            @if (submitted && !selectedId && !pdfFile) {
+              <small class="text-[0.72rem] text-[#e8354a] font-bold block mt-2 text-center">Le PDF est obligatoire.</small>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-[1.25rem] p-5 flex flex-wrap items-center justify-between gap-4 sticky bottom-6 shadow-xl z-20">
+      <p class="text-[0.78rem] text-[#e8354a] font-semibold m-0 hidden sm:flex items-center gap-2 flex-1">
+        <i class="pi pi-info-circle"></i>
+        Les champs marqués comme obligatoires doivent être renseignés avant de publier le journal.
+      </p>
+      <div class="flex gap-3">
+        <button (click)="saveJournal()" 
+                class="flex items-center gap-2 bg-white text-[#e8354a] border-1.5 border-[#f87187] px-6 py-2.5 rounded-xl text-[0.83rem] font-bold shadow-[0_2px_8px_rgba(232,53,74,0.1)] hover:bg-red-50 transition-all">
+          <i class="pi pi-check-circle"></i> Publier le journal
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+  </p-dialog>
+
+
+  <p-dialog [(visible)]="displayJournalDetails" [modal]="true" [showHeader]="false" 
+          [style]="{width: '98vw', maxWidth: '1250px', border: 'none'}" 
+          styleClass="p-0 overflow-hidden rounded-[1.5rem] shadow-2xl">
+  
+      <div class="bg-[#fcfcfc] overflow-hidden" *ngIf="selectedJournal">
+        
+        <div class="p-8 md:p-12 bg-gradient-to-r from-[#e11d48] to-[#fb7185] text-white">
+          <div class="flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="space-y-4">
+              <span class="text-[0.65rem] font-extrabold tracking-[0.15em] uppercase opacity-80">JOURNAUX PDF</span>
+              <h1 class="text-3xl md:text-4xl font-black leading-tight m-0">Détail du journal</h1>
+              <p class="text-sm opacity-90 leading-relaxed max-w-lg m-0">
+                Visualisez toutes les informations de votre journal, accédez rapidement au PDF et gérez ses actions clés.
+              </p>
+              <button (click)="displayJournalDetails = false" class="mt-2 flex items-center gap-2 bg-white/20 border border-white/40 px-5 py-2.5 rounded-xl font-bold text-xs backdrop-blur-sm hover:bg-white/30 transition-all">
+                <i class="pi pi-arrow-left"></i> Retour à la liste
+              </button>
+            </div>
+
+            <div class="hidden md:flex flex-col float-start gap-3 min-w-[260px]">
+              <div class="bg-white/15 border border-white/25 backdrop-blur-md p-4 rounded-2xl flex flex-col gap-1">
+                <span class="text-[0.65rem] font-bold uppercase opacity-70">Statut actuel</span>
+                <span class="text-sm font-black flex items-center gap-2">
+                  <i class="pi pi-check-circle"></i> {{ selectedJournal.statut === 'ACTIF' ? 'Publié' : 'Brouillon' }}
+                </span>
+              </div>
+              <div class="bg-white/15 border border-white/25 backdrop-blur-md p-4 rounded-2xl flex flex-col gap-1">
+                <span class="text-[0.65rem] font-bold uppercase opacity-70">Date d'ajout</span>
+                <span class="text-[0.75rem] font-bold opacity-90">{{ selectedJournal.dateAjout | date:'dd MMMM yyyy à HH:mm' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-2 sm:p-6 md:p-10">
+          
+          <div class="bg-white border border-slate-200 rounded-[1.25rem] p-4 sm:p-6 md:p-8 shadow-sm grid grid-cols-1 lg:grid-cols-[380px_1fr] xl:grid-cols-[500px_1fr] gap-10 mb-6">
+            
+            <div class="flex flex-col gap-6">
+              <div class="flex flex-col gap-2">
+                <div class="w-full aspect-[40/22] rounded-[0.875rem] border border-slate-100 overflow-hidden shadow-sm bg-slate-50">
+                  <img *ngIf="imageUrls[selectedJournal.id]" [src]="imageUrls[selectedJournal.id]" class="w-full h-full object-cover" />
+                  <div *ngIf="!imageUrls[selectedJournal.id]" class="w-full h-full bg-gradient-to-br from-[#e8354a] to-[#f87187] flex items-center justify-center text-white/50">
+                    <i class="pi pi-book text-6xl"></i>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center text-[0.75rem] font-bold text-slate-500 px-1 mt-1">
+                  <span>Image de couverture</span>
+                  <span class="text-slate-400 flex items-center gap-1"><i class="pi pi-image text-[0.7rem]"></i> 1200 x 1600</span>
+                </div>
+                <p class="text-[0.7rem] text-slate-400 italic m-0 px-1">Aperçu de l'image actuellement associée.</p>
+              </div>
+
+              <div class="bg-slate-50 border border-slate-200 rounded-[0.875rem] p-5 flex flex-col gap-2">
+                <div class="flex items-center gap-3">
+                  <i class="pi pi-file-pdf text-[#e8354a] text-lg"></i>
+                  <span class="text-[0.85rem] font-bold text-slate-800 truncate flex-1">{{ getShortFileName(selectedJournal.fichierPdf) }}</span>
+                </div>
+     
+                <div class="flex flex-col gap-2 mt-2">
+                  <button (click)="downloadPdf(selectedJournal.fichierPdf)" class="w-full flex items-center justify-center gap-2 bg-white text-slate-700 border-1.5 border-slate-200 py-2 rounded-lg text-[0.78rem] font-bold hover:border-[#f87187] hover:text-[#e8354a] transition-all">
+                    <i class="pi pi-download text-xs"></i> Télécharger le PDF
+                  </button>
+                  <button (click)="openPdf(selectedJournal.fichierPdf)" class="w-full flex items-center justify-center gap-2 bg-white text-slate-700 border-1.5 border-slate-200 py-2 rounded-lg text-[0.78rem] font-bold hover:border-[#f87187] hover:text-[#e8354a] transition-all">
+                    <i class="pi pi-external-link text-xs"></i> Ouvrir le lien
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-8">
+              <div>
+                <h2 class="text-[1.05rem] font-extrabold text-slate-800 m-0">Informations du journal</h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6 pt-6 border-t border-slate-100">
+                  <div class="space-y-1">
+                    <label class="block text-[0.68rem] font-extrabold text-[#e8354a] uppercase tracking-wider">Titre</label>
+                    <p class="text-[0.875rem] font-semibold text-slate-700 m-0">{{ selectedJournal.titre }}</p>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="block text-[0.68rem] font-extrabold text-[#e8354a] uppercase tracking-wider">Slug</label>
+                    <p class="text-[0.78rem] font-mono text-slate-500 m-0 break-all">{{ selectedJournal.slug }}</p>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="block text-[0.68rem] font-extrabold text-[#e8354a] uppercase tracking-wider">Statut</label>
+                    <span [class.bg-emerald-50]="selectedJournal.statut === 'ACTIF'"
+                          [class.text-emerald-600]="selectedJournal.statut === 'ACTIF'"
+                          [class.border-emerald-200]="selectedJournal.statut === 'ACTIF'"
+                          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border bg-slate-100 text-slate-500 text-[0.75rem] font-bold">
+                      <i class="pi pi-check-circle text-[0.7rem]"></i>
+                      {{ selectedJournal.statut === 'ACTIF' ? 'Publié' : 'Brouillon' }}
+                    </span>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="block text-[0.68rem] font-extrabold text-[#e8354a] uppercase tracking-wider">Dernière Mise à jour</label>
+                    <p class="text-[0.875rem] font-semibold text-slate-700 m-0">{{ selectedJournal.dateAjout | date:'dd MMMM yyyy' }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-4 border-t border-slate-100">
+                <label class="block text-[0.68rem] font-extrabold text-[#e8354a] uppercase tracking-wider mb-2">Description</label>
+                <p class="text-[0.875rem] text-slate-600 leading-[1.7] m-0">
+                  {{ selectedJournal.description || 'Aucune description disponible pour ce journal.' }}
+                </p>
+              </div>
+
+              
+            </div>
+          </div>
+
+          <div class="bg-white border border-slate-200 rounded-[1.25rem] p-4 sm:p-5 flex flex-wrap items-center justify-between gap-4 shadow-sm" *appHasRole="['ADMIN', 'SUPER_ADMIN']">
+            <p class="text-[0.78rem] text-slate-500 font-medium m-0 flex items-center gap-2 flex-1">
+              <i class="pi pi-info-circle text-[#e8354a]"></i>
+              Ce journal est au cœur de votre application. Gérez-le avec attention.
+            </p>
+            <div class="flex flex-wrap gap-3 border-t border-slate-100 mt-auto">
+                <button (click)="editJournal(selectedJournal)" class="flex items-center gap-2 bg-white text-slate-600 border-1.5 border-slate-200 px-5 py-2.5 rounded-xl text-[0.8rem] font-bold hover:bg-slate-50 hover:border-slate-400 transition-all">
+                  <i class="pi pi-pencil text-xs"></i> Modifier le journal
+                </button>
+                
+                <button (click)="deleteJournal(selectedJournal.id)" class="flex items-center gap-2 bg-[#e8354a] text-white px-5 py-2.5 rounded-xl text-[0.8rem] font-bold shadow-lg shadow-red-200 hover:bg-[#c0253a] transition-all">
+                  <i class="pi pi-trash text-xs"></i> Supprimer ce journal
+                </button>
+              </div>
+          </div>
+
+        </div>
+      </div>
+    </p-dialog>
+
+</div>
+
+
+<p-confirmDialog />
+  <p-toast />

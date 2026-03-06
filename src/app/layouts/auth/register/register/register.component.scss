@@ -1,0 +1,247 @@
+
+.register-page {
+  background-color: #f9fafb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.full{
+  min-height: 100vh;
+}
+
+.register-container {
+  width: 100%;
+  max-width: 500px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 2.5rem;
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.logo-icon {
+  font-size: 2rem;
+}
+
+.logo-text {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #3b82f6;
+  margin: 0;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0.5rem 0;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+::ng-deep .register-form .p-inputtext {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+}
+
+::ng-deep .register-form .p-inputtext:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.password-container {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.password-toggle:hover {
+  color: #374151;
+}
+
+.password-rules {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.rule i {
+  font-size: 0.9rem;
+}
+
+.rule.valid {
+  color: #10b981;
+}
+
+.rule.valid i {
+  color: #10b981;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+::ng-deep .register-form .p-dropdown {
+  width: 100%;
+  border-radius: 8px;
+}
+
+::ng-deep .register-form .p-dropdown .p-dropdown-label {
+  padding: 0.75rem 1rem;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.checkbox-label {
+  font-size: 0.9rem;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+::ng-deep .checkbox-group .p-checkbox .p-checkbox-box {
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+}
+
+::ng-deep .checkbox-group .p-checkbox .p-checkbox-box.p-highlight {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+}
+
+.link {
+  color: #e11d48;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.submit-btn {
+  border-radius: 8px;
+  padding: 0.875rem;
+  font-weight: 600;
+  background-color: #e11d48;
+  border-color: #e11d48;
+}
+
+.submit-btn:hover {
+  background-color: #b11839;
+  border-color: #b11839;
+}
+
+.submit-btn:disabled {
+  background-color: #9ca3af;
+  border-color: #9ca3af;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 1rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.login-link a {
+  margin-left: 0.5rem;
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.helper-text {
+  color: #9ca3af;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 640px) {
+  .register-page {
+    padding: 1rem;
+  }
+  
+  .register-container {
+    padding: 1.5rem;
+  }
+  
+  .password-rules {
+    grid-template-columns: 1fr;
+  }
+  
+  .logo-text {
+    font-size: 1.5rem;
+  }
+  
+  .title {
+    font-size: 1.25rem;
+  }
+}

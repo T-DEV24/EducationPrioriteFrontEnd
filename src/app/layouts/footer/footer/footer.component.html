@@ -1,0 +1,74 @@
+<footer class="bg-[#e11d48] text-white pt-12 pb-6">
+  <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    
+    <div>
+      <div class="flex items-center space-x-2 mb-4">
+        <div class="bg-white p-1 rounded text-[#e11d48] font-bold">EP</div>
+        <span class="font-bold text-lg">EducationPriorité</span>
+      </div>
+      <p class="text-sm leading-relaxed text-red-100">
+        Média numérique pour la communauté éducative. Actualités, dossiers, enquêtes et PDF premium.
+      </p>
+      <div class="flex space-x-4 mt-6">
+       <a href="https://www.facebook.com/profile.php?id=61574895877117" target="_blank" rel="noopener noreferrer">
+          <i class="pi pi-facebook cursor-pointer hover:text-gray-300"></i>
+        </a>
+
+        <a href="https://wa.me/237674611373" target="_blank" rel="noopener noreferrer">
+          <i class="pi pi-whatsapp cursor-pointer hover:text-gray-300"></i>
+        </a>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="font-bold mb-4 uppercase text-sm border-b border-red-400 pb-2">Navigation</h3>
+      <ul class="space-y-2 text-sm text-red-100">
+        <li><a routerLink="/child/rubrique" class="hover:underline">Rubriques</a></li>
+        <li><a routerLink="/child/journal" class="hover:underline">Journal PDF</a></li>
+        <li><a routerLink="/child/utilisateur" class="hover:underline" *appHasRole="['ADMIN', 'SUPER_ADMIN']">Utilisateurs</a></li>
+        <li><a routerLink="/child/contact" class="hover:underline">Contact</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <h3 class="font-bold mb-4 uppercase text-sm border-b border-red-400 pb-2">Compte</h3>
+      <ul class="space-y-2 text-sm text-red-100">
+        @if (!isAuthenticated) {
+          <li><a routerLink="/login" class="hover:underline">Connexion</a></li>
+          <li><a routerLink="/register" class="hover:underline">Inscription</a></li>
+        }@else {
+          <li><a routerLink="/logout" (click)="onLogout()" class="hover:underline">Déconnexion</a></li> 
+          <li><a (click)="displayModal = true" class="hover:underline cursor-pointer">Mon profil</a></li>
+        }
+      </ul>
+    </div>
+
+    
+  </div>
+
+  <div class="container mx-auto px-4 mt-12 pt-6 border-t border-red-500 flex flex-col md:flex-row justify-between items-center text-xs text-red-200">
+    <p>© 2026 EducationPriorité. Tous droits réservés.</p>
+    <button (click)="scrollToTop()" class="mt-4 md:mt-0 bg-white text-[#e11d48] px-4 py-2 rounded-full font-bold shadow-lg flex items-center">
+      Haut de page <i class="pi pi-arrow-up ml-2"></i>
+    </button>
+  </div>
+
+<p-dialog 
+    [(visible)]="displayModal" 
+    [modal]="true" 
+    [draggable]="false" 
+    [resizable]="false"
+    maskStyleClass="backdrop-blur-sm"
+    header="Mon Profil"
+    [style]="{width: '98vw', maxWidth: '800px'}">
+    
+    <app-user-profile 
+    *ngIf="displayModal">
+    ></app-user-profile>
+</p-dialog>
+
+
+  
+</footer>
+
+

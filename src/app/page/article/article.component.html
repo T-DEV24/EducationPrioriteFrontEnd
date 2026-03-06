@@ -1,0 +1,358 @@
+<div class="min-h-screen bg-[#f8fafc] pb-12">
+
+  <div class="bg-gradient-to-r from-[#e11d48] to-[#fb7185] p-8 md:p-12 mb-8 shadow-lg relative overflow-hidden">
+    <div class=" mx-auto relative flex items-start md:justify-between md:items-center flex-col lg:flex-row  z-10 gap-4">
+      <div class="flex-1 w-full">
+        <p class="text-white/80 text-xs font-bold uppercase tracking-widest mb-1">ARTICLES</p>
+        <h1 class="text-2xl md:text-3xl font-extrabold text-white mb-2">Articles — {{ rubriqueNom }}</h1>
+        <p class="text-white/70 text-sm max-w-md"> Consultez tous les articles de cette rubrique. 
+          Retrouvez les dernières publications et plongez 
+          dans les sujets qui vous correspondent.</p>
+      </div>
+      <div class="w-full lg:max-w-96 flex flex-col  gap-3 items-start sm:items-center">
+        <div class="relative w-full">
+          <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-white/60 text-sm"></i>
+          <input type="text" [(ngModel)]="searchTerm"
+                 placeholder="Rechercher un article par titre, slug ou rubrique..."
+                 class="pl-9 pr-4 py-2.5 rounded-xl bg-white/20 text-white placeholder-white/60 border border-white/30 focus:outline-none focus:bg-white/30 text-sm w-full" />
+        </div>
+            
+        <div class="w-full flex flex-wrap gap-2 float-start">
+          <button (click)="goBack()"
+                  class="bg-white/20 hover:bg-white/30 text-white px-4 py-2.5 rounded-xl font-semibold text-sm border border-white/30 transition-all whitespace-nowrap" >
+            Retour aux rubriques
+          </button>
+          <button (click)="openNew()"
+                  class="bg-white text-red-600 hover:bg-red-50 px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg whitespace-nowrap" *appHasRole="['ADMIN', 'SUPER_ADMIN']">
+            Ajouter un article
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mx-2 md:mx-4">
+
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 py-5 border-b border-slate-100 gap-4">
+      <div>
+        <p class="text-[10px] font-black text-[#f35f75] uppercase tracking-widest mb-0.5">ARTICLES</p>
+        <h2 class="text-base font-bold text-slate-900">Catalogue des publications</h2>
+        <p class="text-[#f35f75] text-xs mt-0.5">Consultez et gérez vos articles avec aperçu visuel, métadonnées et accès rapide aux actions d'édition.</p>
+      </div>
+   
+    </div>
+
+    <div class="flex gap-2 flex-wrap px-6 pt-6">
+      <button *ngFor="let opt of statutOptions"
+              (click)="selectedStatut = opt.value"
+              [class]="selectedStatut === opt.value 
+                ? 'bg-[#e8354a] text-white border-[#e8354a] shadow-[0_4px_12px_rgba(232,53,74,0.35)]' 
+                : 'bg-white text-slate-500 border-slate-200 hover:border-red-400 hover:text-[#e8354a]'"
+              class="flex items-center gap-2 px-5 py-2 rounded-full border-1.5 font-bold text-xs transition-all cursor-pointer"
+              >
+        <i [class]="selectedStatut === opt.value ? 'pi pi-check-circle' : 'pi pi-circle'" class="text-[0.75rem]"></i>
+        {{ opt.label }}
+      </button>
+      <div class="relative shrink-0 w-48">
+        <p-datepicker  
+          [(ngModel)]="selectedDate" 
+          placeholder="Filtrer par date" 
+          [showClear]="true"
+          [iconDisplay]="'input'" 
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+          styleClass="modern-calendar w-full">
+        </p-datepicker>
+      </div>
+    </div>
+
+    <div class="divide-y divide-slate-50 p-2 md:p-6">
+      
+      @for (article of filteredArticles; track article.id) {
+        <div class="flex flex-col sm:flex-row gap-4 px-6 py-5 hover:bg-slate-50/50 transition-colors group shadow-lg shadow-red-200 rounded-lg mb-9">
+
+          <div class="w-full sm:w-36 h-28 sm:h-24 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
+            @if (imageUrls[article.id]) {
+              <img [src]="imageUrls[article.id]" [alt]="article.titre"
+                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            } @else {
+              <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-400 to-red-600">
+                <i class="pi pi-image text-white/40 text-2xl"></i>
+              </div>
+            }
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
+              <div class="flex items-center flex-wrap gap-2">
+                <h3 class="text-sm font-bold text-slate-900">{{ article.titre }}</h3>
+                <span [ngClass]="{
+                        'bg-emerald-50 text-emerald-700 border-emerald-200': article.statut === 'PUBLIE',
+                        'bg-orange-50 text-orange-700 border-orange-200': article.statut === 'BROUILLON'
+                      }"
+                      class="text-[10px] font-bold px-2.5 py-0.5 rounded-full border uppercase">
+                  {{ article.statut }}
+                </span>
+                <span class="text-[10px] text-[#f35f75] ">• {{ article.datePublication | date:'dd/MM/yyyy' }}</span>
+              </div>
+
+              <div class="hidden sm:flex items-center gap-2  flex-wrap">
+                <button (click)="showDetails(article)"
+                        class="flex items-center gap-1.5 bg-[#fde2e6] text-xs text-[#f54b65] hover:text-[#f1324f] border border-[#f54b65] hover:border-[#f1324f] px-3 py-1.5 rounded-lg transition-all font-medium ">
+                  <i class="pi pi-eye text-[10px]"></i> Détails
+                </button>
+                <button (click)="editArticle(article)"
+                        class="flex items-center gap-1.5 bg-[#fde2e6] text-xs text-[#f54b65] hover:text-[#f1324f] border border-[#f54b65] hover:border-[#f1324f] px-3 py-1.5 rounded-lg transition-all font-medium " *appHasRole="['ADMIN', 'SUPER_ADMIN']">
+                  <i class="pi pi-pencil text-[10px]"></i> Modifier
+                </button>
+                <button (click)="deleteArticle(article)"
+                        class="flex items-center gap-1.5 text-xs text-red-500 hover:text-white hover:bg-red-500 border border-red-200 hover:border-red-500 px-3 py-1.5 rounded-lg transition-all font-medium " *appHasRole="['ADMIN', 'SUPER_ADMIN']">
+                  <i class="pi pi-trash text-[10px]"></i> Supprimer
+                </button>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-x-2 gap-y-0.5 text-[11px] text-slate-400 mb-2">
+              <span>Slug : <span class="text-[#f35f75]  font-medium">{{ article.slug }}</span></span>
+              <span>•</span>
+              <span>Rubrique : <span class="text-[#f35f75]  font-medium">{{ rubriqueNom }}</span></span>
+              
+            </div>
+            @if (article.contenu) {
+              <p class="text-[12px] text-slate-400 line-clamp-2 leading-relaxed">{{ article.contenu | slice:0:400 }}...</p>
+            }
+            <p class="text-[10px] text-[#f35f75] md:float-right mt-2">Dernière mise à jour : {{article.datePublication | date:'dd/MM/yyyy' }}</p>
+          </div>
+          
+          <div class="flex sm:hidden items-center gap-2 flex-wrap">
+                <button (click)="showDetails(article)"
+                        class="flex items-center gap-1.5 bg-[#fde2e6] text-xs text-[#f54b65] hover:text-[#f1324f] border border-[#f54b65] hover:border-[#f1324f] px-3 py-1.5 rounded-lg transition-all font-medium ">
+                  <i class="pi pi-eye text-[10px]"></i> Détails
+                </button>
+                <button (click)="editArticle(article)"
+                        class="flex items-center gap-1.5 bg-[#fde2e6] text-xs text-[#f54b65] hover:text-[#f1324f] border border-[#f54b65] hover:border-[#f1324f] px-3 py-1.5 rounded-lg transition-all font-medium " *appHasRole="['ADMIN', 'SUPER_ADMIN']">
+                  <i class="pi pi-pencil text-[10px]"></i> Modifier
+                </button>
+                <button (click)="deleteArticle(article)"
+                        class="flex items-center gap-1.5 text-xs text-red-500 hover:text-white hover:bg-red-500 border border-red-200 hover:border-red-500 px-3 py-1.5 rounded-lg transition-all font-medium " *appHasRole="['ADMIN', 'SUPER_ADMIN']">
+                  <i class="pi pi-trash text-[10px]"></i> Supprimer
+                </button>
+              </div>
+        </div>
+      } @empty {
+        <div class="flex flex-col items-center justify-center py-20 text-center">
+          <div class="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+            <i class="pi pi-inbox text-2xl text-slate-300"></i>
+          </div>
+          <p class="text-slate-400 font-bold text-sm uppercase tracking-widest">Aucun article trouvé</p>
+          <p class="text-slate-300 text-xs mt-1">Modifiez votre recherche ou ajoutez un nouvel article</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  <p-dialog [(visible)]="articleDialog"
+            [modal]="true" [draggable]="false" [closable]="true"
+            [style]="{width: '95vw', maxWidth: '1100px'}"
+            styleClass="article-form-dialog" [showHeader]="false" *appHasRole="['ADMIN', 'SUPER_ADMIN']">
+    <div class="flex flex-col">
+
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 md:px-8 pt-8 pb-6 border-b border-slate-100 gap-4">
+        <div>
+          <p class="text-[11px] font-black text-red-500 uppercase tracking-widest mb-1">{{ selectedId ? 'ÉDITION' : 'CRÉATION' }}</p>
+          <h2 class="text-xl font-extrabold text-slate-900">Informations de l'article</h2>
+          <p class="text-[#f35f75] text-sm mt-1">Tous les champs marqués d'une astérisque sont obligatoires.</p>
+        </div>
+        
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3">
+
+        <div class="lg:col-span-2 px-6 md:px-8 py-6 flex flex-col gap-6 border-r border-slate-100">
+
+          <div class="field">
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+              Titre de l'article <span class="text-red-500">*</span>
+            </label>
+            <input type="text" pInputText [(ngModel)]="article.titre"
+                   [ngClass]="{'ng-invalid ng-dirty': submitted && !article.titre}"
+                   placeholder="Saisissez un titre clair et accrocheur..."
+                   class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 placeholder-red-300 text-red-500 transition-all" />
+            
+            @if (submitted && !article.titre) {
+              <small class="text-red-400 text-xs mt-1">Le titre est obligatoire</small>
+            }
+          </div>
+
+          <div class="field">
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+              Statut de l'article <span class="text-red-500">*</span>
+            </label>
+            <div class="flex flex-wrap items-center gap-4 border border-slate-200 rounded-xl px-4 py-3 bg-white">
+              @for (opt of statutDropdown; track opt.value) {
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" [value]="opt.value" [(ngModel)]="article.statut" class="accent-red-500 cursor-pointer" />
+                  <span class="flex items-center gap-1.5 text-sm font-medium text-slate-700">
+                    <span [ngClass]="{
+                      'bg-emerald-500': opt.value === 'PUBLIE',
+                      'bg-orange-400': opt.value === 'BROUILLON',
+                
+                    }" class="w-2 h-2 rounded-full inline-block"></span>
+                    {{ opt.label }}
+                  </span>
+                </label>
+              }
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+              Contenu de l'article <span class="text-red-500">*</span>
+            </label>
+            <textarea pInputTextarea [(ngModel)]="article.contenu" rows="8"
+                      [ngClass]="{'ng-invalid ng-dirty': submitted && !article.contenu}"
+                      placeholder="Rédigez ici le contenu principal de votre article. "
+                      class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-100 focus:border-red-300 placeholder-red-300 text-red-500 resize-none transition-all"></textarea>
+      
+            @if (submitted && !article.contenu) {
+              <small class="text-red-400 text-xs mt-1">Le contenu ne peut pas être vide</small>
+            }
+          </div>
+        </div>
+
+        <div class="px-6 py-6 flex flex-col gap-5 bg-slate-50/50">
+
+          <div class="bg-white border border-slate-200 rounded-2xl p-5">
+            <h3 class="text-sm font-bold text-slate-900 mb-1">Image de couverture</h3>
+            <p class="text-[#f35f75] text-xs mb-4">Optionnelle mais fortement recommandée pour mettre l'article en avant.</p>
+            <div class="flex gap-3 items-start border border-slate-100 rounded-xl p-3 relative cursor-pointer hover:border-red-300 transition-colors group">
+              <input type="file" (change)="onFileSelected($event)" accept="image/*"
+                     class="absolute inset-0 opacity-0 cursor-pointer z-10">
+              <div class="w-full h-44 rounded-xl overflow-hidden flex-shrink-0 bg-gradient-to-br from-red-400 to-red-600">
+                @if (imagePreview) {
+                  <img [src]="imagePreview" class="w-full h-full object-cover">
+                }
+              </div>
+              
+            </div>
+          </div>
+
+          
+        </div>
+       
+      </div>
+      <div class="flex items-center justify-end flex-wrap gap-3 p-6">
+          <button (click)="articleDialog = false"
+                  class="text-slate-500 hover:text-slate-700 font-semibold text-sm px-4 py-2 rounded-lg hover:bg-slate-100 transition-all">
+            Annuler
+          </button>
+          <button (click)="saveArticle()"
+                  class="bg-white text-red-600 hover:bg-red-50 px-4 py-2.5 rounded-xl font-bold text-sm transition-all shadow-lg whitespace-nowrap">
+            Enregistrer l'article
+          </button>
+        </div>
+    </div>
+  </p-dialog>
+
+
+  <p-dialog [(visible)]="displayDetails"
+            [modal]="true" [draggable]="false" [closable]="true"
+            styleClass="article-details-dialog" [showHeader]="false"
+            [breakpoints]="{ '1199px': '95vw', '575px': '95vw' }">
+
+    @if (selectedArticle) {
+      <div class="flex flex-col">
+
+        <div class="bg-gradient-to-r from-[#e11d48] to-[#fb7185] p-6 md:p-8 rounded-t-xl">
+          <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+            <div class="flex-1">
+              <p class="text-white/80 text-[10px] font-black uppercase tracking-widest mb-1">ARTICLES</p>
+              <h2 class="text-xl md:text-2xl font-extrabold text-white mb-2">Détails de l'article</h2>
+              <p class="text-white/70 text-sm max-w-sm">Vue détaillée avec image de couverture, métadonnées, statut et actions rapides.</p>
+              <div class="flex flex-wrap gap-2 mt-4">
+                <span class="bg-white/20 text-white text-xs px-3 py-1 rounded-full border border-white/20">Rubrique : {{ rubriqueNom }}</span>
+                <span class="bg-white/20 text-white text-xs px-3 py-1 rounded-full border border-white/20">Publié le {{ selectedArticle.datePublication | date:'dd/MM/yyyy' }}</span>
+                <span class="bg-white/20 text-white text-xs px-3 py-1 rounded-full border border-white/20">{{ selectedArticle.slug }}</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-3 flex-shrink-0 flex-wrap">
+              <button (click)="displayDetails = false"
+                      class="bg-white/20 hover:bg-white/30 text-white text-sm font-medium px-4 py-2 rounded-xl border border-white/30 transition-all whitespace-nowrap">
+                Retour à la liste
+              </button>
+              
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-center flex-col md:flex-row gap-6 bg-[#f8fafc] p-4 md:p-6 rounded-b-xl">
+
+          <div class="w-full md:max-w-[40rem] lg:col-span-2 flex flex-col gap-4">
+
+            <div class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+              @if (imageUrls[selectedArticle.id]) {
+                <img [src]="imageUrls[selectedArticle.id]" class="w-full object-cover max-h-[400px]">
+              } @else {
+                <div class="h-64 flex flex-col items-center justify-center bg-gradient-to-r from-[#e11d48] to-[#fb7185]">
+                  <i class="pi pi-image text-5xl text-red-200 mb-2"></i>
+                  <span class="text-sm font-medium text-red-300">Image de couverture</span>
+                  <span class="text-xs text-red-200 mt-1">Prévisualisation 16:9</span>
+                </div>
+              }
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+              <p class="text-[10px] font-black text-red-500 uppercase tracking-widest mb-4">CONTENU DE L'ARTICLE</p>
+              <div class="text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">{{ selectedArticle.contenu }}</div>
+            </div>
+          </div>
+
+          <div class="w-full md:w-[25rem] flex flex-col gap-4" *appHasRole="['ADMIN', 'SUPER_ADMIN']">
+
+            <div class=" hidden md:inline bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+              <p class="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">RÉSUMÉ</p>
+              <h3 class="text-sm font-bold text-slate-900 mb-0.5">Vue synthétique</h3>
+              <p class="text-red-400 text-xs mb-4">Informations clés de l'article.</p>
+              <div class="space-y-3">
+                
+                <div class="flex justify-between items-center flex-wrap text-sm border-b border-slate-50 pb-2">
+                  <span class="text-slate-500">Slug</span>
+                  <span class="font-bold text-slate-800 text-xs truncate max-w-[140px] text-right">{{ selectedArticle.slug }}</span>
+                </div>
+                <div class="flex justify-between items-center flex-wrap text-sm border-b border-slate-50 pb-2">
+                  <span class="text-slate-500">Rubrique</span>
+                  <span class="font-bold text-slate-800">{{ rubriqueNom }}</span>
+                </div>
+                <div class="flex justify-between items-center flex-wrap text-sm">
+                  <span class="text-slate-500">Date de publication</span>
+                  <span class="font-bold text-slate-800">{{ selectedArticle.datePublication | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5" >
+              <p class="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1">ACTIONS RAPIDES</p>
+              <h3 class="text-sm font-bold text-slate-900 mb-0.5">Gérer l'article</h3>
+              <div class="flex flex-col gap-2">
+                
+                <button (click)="editArticle(selectedArticle); displayDetails=false"
+                      class="bg-white text-red-500 hover:bg-slate-100 text-sm font-bold px-5 py-2.5 rounded-xl transition-all shadow-lg whitespace-nowrap">
+                    Modifier
+                </button>
+                <button (click)="deleteArticle(selectedArticle); displayDetails=false"
+                        class="w-full text-center text-sm text-white bg-red-600 hover:bg-red-700 px-4 py-3 rounded-xl font-bold transition-all shadow-md shadow-red-200">
+                  Supprimer définitivement
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    }
+  </p-dialog>
+
+  <p-confirmDialog />
+  <p-toast position="bottom-right" />
+</div>

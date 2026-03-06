@@ -1,0 +1,85 @@
+<div class="register-page" [class]="isregister ? 'nofull' : 'full'">
+  <div class="register-container">
+    
+    <div class="register-header">
+      <div class="logo">
+         <img src="logo.png" alt="EducationPriorité" class="h-16 w-auto object-contain" />
+        <h1 class="text-[#e11d48] font-bold text-4xl hidden lg:block">EducationPriorité</h1>
+      </div>
+      <p class="subtitle">{{ userId ? 'Mettez à jour vos informations' : 'Rejoins Nous et organise ton apprentissage' }}</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="handleAction()" class="register-form">
+      
+      <div class="flex flex-col">
+        <div class="form-group">
+          <label for="email" class="form-label">Email *</label>
+          <input pInputText id="email" formControlName="email" type="email" class="w-full">
+          @if (hasError('email')) { <small class="error-text">{{ getErrorMessage('email') }}</small> }
+        </div>
+
+        <div class="form-group mt-4">
+          <label for="username" class="form-label">Nom d'utilisateur *</label>
+          <input pInputText id="username" formControlName="username" class="w-full">
+          @if (hasError('username')) { <small class="error-text">{{ getErrorMessage('username') }}</small> }
+        </div>
+      </div>
+
+      <div class="flex flex-col">
+        <div class="form-group">
+          <label for="password" class="form-label">{{ userId ? 'Nouveau mot de passe (Optionnel)' : 'Mot de passe *' }}</label>
+          <div class="password-container">
+            <input pInputText id="password" formControlName="password" type="password" class="w-full password-input">
+          </div>
+          @if (hasError('password')) { <small class="error-text">{{ getErrorMessage('password') }}</small> }
+          
+          @if (!userId || password?.value) {
+            <div class="password-rules">
+                <div class="rule" [class.valid]="hasValidLength()"><i [class]="getLengthIcon()"></i><span>8-12 caractères</span></div>
+                <div class="rule" [class.valid]="hasUpperCase()"><i [class]="getUpperCaseIcon()"></i><span>1 majuscule</span></div>
+                <div class="rule" [class.valid]="hasNumber()"><i [class]="getNumberIcon()"></i><span>1 chiffre</span></div>
+                <div class="rule" [class.valid]="hasSpecialChar()"><i [class]="getSpecialCharIcon()"></i><span>1 caractère spécial</span></div>
+            </div>
+          }
+        </div>
+
+        <div class="form-group mt-4">
+          <label for="confirmPassword" class="form-label">Confirmer le mot de passe {{ userId ? '' : '*' }}</label>
+          <input pInputText id="confirmPassword" formControlName="confirmPassword" type="password" class="w-full password-input">
+          @if (registerForm.hasError('passwordMismatch')) { <small class="error-text">Les mots de passe ne correspondent pas</small> }
+        </div>
+
+      @if (isregister && !userId) { 
+        <div class="form-group mt-4" *appHasRole="['ADMIN', 'SUPER_ADMIN']">
+          <label for="role" class="form-label">Role</label>
+          <p-select 
+            [options]="roles"
+            id="role" 
+            formControlName="role" 
+            optionLabel="name"
+            optionValue="code"
+            class="w-full" />
+        </div>
+      }
+      </div>
+
+      <div class="form-actions">
+        <button pButton type="submit" [disabled]="!getValid()" 
+                [label]="userId ? 'Sauvegarder les modifications' : 'S\'inscrire'" 
+                class="submit-btn w-full">
+        </button>
+        
+        @if (!isregister) {
+          <div class="login-link" *ngIf="!userId">
+            <span>Déjà un compte?</span>
+            <a routerLink="/login" class="link">Se connecter</a>
+          </div>
+        }
+      </div>
+    </form>
+  </div>
+</div>
+
+@if (!isregister) {
+  <p-toast />
+}

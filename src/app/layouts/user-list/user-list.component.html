@@ -1,0 +1,156 @@
+<div class="min-h-screen bg-[#f8fafc] pb-12 font-sans flex flex-col gap-6">
+
+  <div class="p-10 md:px-12 bg-gradient-to-r from-[#e11d48] to-[#fb7185] shadow-lg">
+    <div class="flex flex-col sm:flex-row justify-between items-end gap-8">
+      <div class="flex flex-col gap-3">
+        <span class="text-[0.65rem] font-black tracking-[0.15em] uppercase text-white/75">ADMINISTRATION</span>
+        <h1 class="text-3xl md:text-4xl font-[900] text-white leading-tight m-0">Utilisateurs de la plateforme</h1>
+        <p class="text-sm text-white/85 leading-relaxed m-0">
+          Suivez vos comptes, leurs rôles et leurs dates de création dans une vue claire et élégante.
+        </p>
+        <div class="flex flex-wrap gap-3 mt-4">
+          <button (click)="openCreate()" class="flex items-center gap-2 bg-white text-[#e8354a] px-6 py-3 rounded-xl font-extrabold text-sm shadow-md hover:bg-red-50 hover:-translate-y-0.5 transition-all cursor-pointer border-none">
+            <i class="pi pi-user-plus text-xs"></i> Ajouter un utilisateur
+          </button>
+          
+        </div>
+      </div>
+      <div class="flex flex-col items-start lg:items-end gap-2 shrink-0">
+        <div class="flex items-center gap-2 bg-white/20 text-white border border-white/30 backdrop-blur-md px-4 py-1.5 rounded-full text-[0.75rem] font-bold">
+          <i class="pi pi-users text-[0.7rem]"></i> {{ filteredUsers.length }} utilisateurs actifs
+        </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="px-2 sm:px-6">
+    <div class="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col md:flex-row items-center gap-4 shadow-sm">
+      <div class="relative flex-1 group w-full">
+        <i class="pi pi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#e8354a] transition-colors"></i>
+        <input type="text" [(ngModel)]="searchTerm"
+               placeholder="Rechercher par email, nom d'utilisateur ou rôle..." 
+               class="w-full pl-11 pr-4 py-3 bg-transparent border border-slate-200 rounded-xl text-sm text-slate-700 outline-none focus:border-[#f87187] focus:ring-4 focus:ring-red-500/5 transition-all">
+      </div>
+      <div class="relative shrink-0 w-48">
+        <p-datepicker  
+          [(ngModel)]="selectedDate" 
+          placeholder="Filtrer par date" 
+          [showClear]="true"
+          [iconDisplay]="'input'" 
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+          styleClass="modern-calendar w-full">
+        </p-datepicker>
+      </div>
+    </div>
+  </div>
+
+  <div class="mx-2 sm:mx-6 bg-white border border-slate-200 rounded-[1.25rem] overflow-hidden shadow-sm">
+    <div class="flex flex-wrap justify-between items-center p-6 border-b border-slate-100 gap-4">
+      <div>
+        <h2 class="text-[1rem] font-black text-slate-800 m-0">Liste des utilisateurs</h2>
+      </div>
+      <span class="text-[0.78rem] text-[#e8354a] font-bold">
+        Affichage de {{ (currentPage - 1) * itemsPerPage + 1 }} à {{ Math.min(currentPage * itemsPerPage, filteredUsers.length) }} sur {{ filteredUsers.length }}
+      </span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-slate-50">
+            <th class="px-6 py-4 text-left text-[0.72rem] font-black text-slate-500 uppercase tracking-widest border-b border-slate-100">Utilisateur</th>
+            <th class="px-6 py-4 text-left text-[0.72rem] font-black text-slate-500 uppercase tracking-widest border-b border-slate-100">Rôle</th>
+            <th class="px-6 py-4 text-left text-[0.72rem] font-black text-slate-500 uppercase tracking-widest border-b border-slate-100">Créé le</th>
+            <th class="px-6 py-4 text-right text-[0.72rem] font-black text-slate-500 uppercase tracking-widest border-b border-slate-100">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          @for (user of paginatedUsers; track user.id) {
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-4">
+                  <div [style.background]="getAvatarColor(user.username)" class="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-sm border border-white/20 overflow-hidden">
+                    <span class="text-[0.78rem] font-black text-white uppercase tracking-tighter">{{ getInitials(user.username) }}</span>
+                  </div>
+                  <div class="flex flex-col min-w-0">
+                    <span class="text-sm font-bold text-slate-800 truncate">{{ user.username }}</span>
+                    <span class="text-[0.68rem] font-mono text-[#f87187] truncate max-w-[150px]">{{ user.email }}</span>
+                  </div>
+                </div>
+              </td>
+              
+              <td class="px-6 py-4">
+                <span [ngClass]="getRoleBadgeClassTailwind(user.role)"
+                      class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border-1.5 text-[0.68rem] font-black uppercase tracking-wider">
+                  <i class="pi" [ngClass]="getRoleIcon(user.role)" class="text-[0.65rem]"></i>
+                  {{ user.role || 'USER' }}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-sm text-slate-600 font-medium">
+                {{ user.createdAt | date:'dd/MM/yyyy' }}
+              </td>
+              <td class="px-6 py-4 text-right">
+                <button (click)="deleteUser(user.id)"
+                        class="w-9 h-9 rounded-full border-1.5 border-slate-200 bg-white text-slate-400 flex items-center justify-center hover:bg-red-50 hover:text-[#e8354a] hover:border-[#f87187] transition-all cursor-pointer shadow-sm">
+                  <i class="pi pi-trash text-sm"></i>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="py-20 text-center">
+                <i class="pi pi-users text-4xl text-slate-100 block mb-3"></i>
+                <p class="text-sm font-black text-slate-400 uppercase tracking-widest m-0">Aucun utilisateur trouvé</p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-between p-5 border-t border-slate-100 bg-white gap-4">
+      <p class="text-[0.75rem] text-slate-500 m-0 flex items-center gap-2">
+        <i class="pi pi-info-circle text-[#e8354a]"></i>
+        Les opérations de suppression sont définitives.
+      </p>
+      
+      <div class="flex items-center gap-1">
+        <button (click)="prevPage()" [disabled]="currentPage === 1" 
+                class="w-8 h-8 rounded-full border-1.5 border-slate-200 flex items-center justify-center text-slate-400 disabled:opacity-30 hover:border-[#f87187] hover:text-[#e8354a] transition-all cursor-pointer">
+          <i class="pi pi-chevron-left text-[0.7rem]"></i>
+        </button>
+        
+        @for (p of pages; track p) {
+          <button (click)="goToPage(p)"
+                  [class]="p === currentPage 
+                    ? 'bg-[#e8354a] border-[#e8354a] text-white shadow-lg shadow-red-200' 
+                    : 'bg-white border-slate-200 text-slate-600 hover:border-[#f87187]'"
+                  class="w-8 h-8 rounded-full border-1.5 flex items-center justify-center text-[0.8rem] font-black transition-all cursor-pointer">
+            {{ p }}
+          </button>
+        }
+
+        <button (click)="nextPage()" [disabled]="currentPage === totalPages" 
+                class="w-8 h-8 rounded-full border-1.5 border-slate-200 flex items-center justify-center text-slate-400 disabled:opacity-30 hover:border-[#f87187] hover:text-[#e8354a] transition-all cursor-pointer">
+          <i class="pi pi-chevron-right text-[0.7rem]"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <p-dialog [(visible)]="displayModal" [modal]="true"
+            [style]="{ width: '98vw', maxWidth: '40rem' }"
+            styleClass="rounded-3xl overflow-hidden backdrop-blur-sm border-none shadow-2xl"
+             maskStyleClass="backdrop-blur-sm">
+    <div class="p-0">
+      <app-register *ngIf="displayModal" [userId]="selectedUserId" [isregister]="true" 
+                    (onSaveSuccess)="refreshAfterSave()" class="w-full">
+      </app-register>
+    </div>
+  </p-dialog>
+
+  <p-toast />
+  <p-confirmDialog />
+</div>
