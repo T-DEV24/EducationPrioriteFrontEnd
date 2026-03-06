@@ -16,7 +16,7 @@ export const appConfig: ApplicationConfig = {
     MessageService,
     ConfirmationService,
     provideRouter(routes),
-  provideAnimations(),// ESSENTIEL
+  provideAnimations(),
   
     providePrimeNG({
             theme: {

@@ -6,14 +6,13 @@ import { ChildComponent } from './child/child.component';
 import { hasRoleGuard } from './layouts/auth/has-role.guard';
 
 export const routes: Routes = [
-    // Route par défaut (redirect)
+
   {
     path: '',
     redirectTo: '/child/dasboard',
     pathMatch: 'full'
   },
   
-  // Route simple
   {
     path: 'login',
     component: LoginComponent
