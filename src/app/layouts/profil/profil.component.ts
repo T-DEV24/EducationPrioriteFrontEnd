@@ -12,11 +12,12 @@ import { DialogModule } from "primeng/dialog";
 import { Subscription } from 'rxjs/internal/Subscription';
 import { RegisterComponent } from "../auth/register/register/register.component";
 import { HasRoleDirective } from '../auth/has-role.directive';
+import { ProgressSpinner } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-user-profile',
   standalone: true,
-  imports: [CommonModule, ConfirmDialogModule, ToastModule, ButtonModule, DialogModule, RegisterComponent, HasRoleDirective],
+  imports: [CommonModule, ConfirmDialogModule, ToastModule, ButtonModule, DialogModule, RegisterComponent, HasRoleDirective, ProgressSpinner],
   providers: [ConfirmationService, MessageService],
   templateUrl: './profil.component.html',
   styleUrls: ['./profil.component.scss']

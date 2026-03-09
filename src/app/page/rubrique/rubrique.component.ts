@@ -16,6 +16,8 @@ import { InputIconModule } from 'primeng/inputicon';
 import { JournalManagerService } from '../../layouts/services/journal-manager-service.service';
 import { RouterModule } from '@angular/router';
 import { HasRoleDirective } from '../../layouts/auth/has-role.directive';
+import { PaginatorModule } from 'primeng/paginator';
+import { ProgressSpinner } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-rubrique',
@@ -24,7 +26,7 @@ import { HasRoleDirective } from '../../layouts/auth/has-role.directive';
     CommonModule, FormsModule, ButtonModule, DialogModule, 
     InputTextModule, TextareaModule, ToastModule, 
     ConfirmDialogModule, IconFieldModule, InputIconModule,
-    RouterModule, HasRoleDirective
+    RouterModule, HasRoleDirective, PaginatorModule, ProgressSpinner
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './rubrique.component.html',
@@ -34,9 +36,11 @@ export class RubriqueComponent implements OnInit, OnDestroy {
   private service = inject(JournalManagerService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+  private searchTimeout: any;
 
   private subs = new Subscription();
 
+  loading: boolean = true;
   rubriques: RubriqueDto[] = [];
   searchTerm: string = '';
   
@@ -47,23 +51,45 @@ export class RubriqueComponent implements OnInit, OnDestroy {
   detailsDialog: boolean = false;
   selectedRubriqueForDetails: RubriqueDto | null = null;
 
+  currentPage = 0;
+  pageSize = 3;
+  totalElements = 0;
+  totalPages = 0;
+
   ngOnInit() {
     this.loadRubriques();
   }
 
-  get filteredRubriques() {
-    return this.rubriques.filter(r => 
-      r.nom.toLowerCase().includes(this.searchTerm.toLowerCase())
+  loadRubriques() {
+    this.loading = true;
+    this.subs.add(
+      this.service.getRubriques(undefined, this.searchTerm, this.currentPage, this.pageSize).subscribe({
+        next: (page) =>{
+            this.rubriques = page.content;
+            this.totalElements = page.totalElements;
+            this.totalPages = page.totalPages;
+            this.loading = false;
+        },
+        error: (err) => {
+          console.log(err);
+          this.loading = false;
+          this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Échec du chargement' })
+        }
+      })
     );
   }
 
-  loadRubriques() {
-    this.subs.add(
-      this.service.getRubriques().subscribe({
-        next: (data) => this.rubriques = data,
-        error: () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Échec du chargement' })
-      })
-    );
+  onPageChange(event: any) {
+    this.currentPage = event.page;
+    this.loadRubriques();
+  }
+
+  onSearchChange() {
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.currentPage = 0;
+      this.loadRubriques();
+    }, 400); 
   }
 
   openNew() {

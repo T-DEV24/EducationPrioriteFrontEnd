@@ -18,6 +18,8 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TextareaModule } from 'primeng/textarea';
 import { DatePickerModule } from 'primeng/datepicker';
 import { HasRoleDirective } from '../../layouts/auth/has-role.directive';
+import { PaginatorModule } from 'primeng/paginator';
+import { ProgressSpinner } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-article',
@@ -26,7 +28,7 @@ import { HasRoleDirective } from '../../layouts/auth/has-role.directive';
     CommonModule, FormsModule, ButtonModule, ToastModule, 
     ConfirmDialogModule, SelectButtonModule, DialogModule,
     InputTextModule, TextareaModule, DropdownModule, DatePickerModule,
-     HasRoleDirective
+     HasRoleDirective, PaginatorModule, ProgressSpinner
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './article.component.html',
@@ -39,6 +41,15 @@ export class ArticleComponent implements OnInit, OnDestroy {
   private confirmationService = inject(ConfirmationService);
   private subs = new Subscription();
   private router = inject(Router);
+  private searchTimeout: any;
+
+  loading: boolean = true;
+  loadingBtn: boolean = false;
+  currentPage = 0;
+  pageSize = 3;
+  totalElements = 0;
+  totalPages = 0;
+
 
   rubriqueId!: number;
   rubriqueNom!: string;
@@ -58,8 +69,9 @@ export class ArticleComponent implements OnInit, OnDestroy {
   displayDetails: boolean = false;
   selectedArticle: ArticleDto | null = null;
 
-  selectedStatut: string = 'TOUT'; 
-  selectedDate: Date | null = null;
+  selectedStatut: string = 'PUBLIE'; 
+  selectedDateDebut: Date | null = null;
+  selectedDateFin: Date | null = null;
 
  statutOptions = [
   { label: 'Tout', value: 'TOUT' },
@@ -87,21 +99,50 @@ export class ArticleComponent implements OnInit, OnDestroy {
   }
 
  loadArticles() {
-  this.subs.add(
-    this.service.getArticles(undefined, this.rubriqueId).subscribe({
-      next: (data) => {
-        this.articles = data;
+    this.loading = true;
+    this.subs.add(
+      this.service.getArticles(
+        undefined,
+        this.rubriqueId,
+        this.searchTerm,          
+        this.selectedStatut !== 'TOUT' ? this.selectedStatut : undefined,
+        this.selectedDateDebut ?? undefined,
+        this.selectedDateFin ?? undefined,
+        this.currentPage,
+        this.pageSize
+      ).subscribe({
+        next: (data) => {
+          this.articles = data.content;
+          this.totalElements = data.totalElements;
+          this.totalPages = data.totalPages;
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+          this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Échec du chargement' });
+        }
+      })
+    );
+  }
 
-        this.articles.forEach(article => {
-          if (article.image) {
-            this.downloadAndPreviewImage(article.id, article.image);
-          }
-        });
-      },
-      error: () => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Échec du chargement' })
-    })
-  );
- }
+ onSearchChange() {
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.currentPage = 0;
+      this.loadArticles();
+    }, 400); 
+  }
+
+
+  onFilterChange() {
+    this.currentPage = 0;
+    this.loadArticles();
+  }
+
+  onPageChange(event: any) {
+    this.currentPage = event.page;
+    this.loadArticles();
+  }
 
   openNew() {
     this.article = this.resetForm();
@@ -118,9 +159,6 @@ export class ArticleComponent implements OnInit, OnDestroy {
     this.selectedArticle = article;
     this.displayDetails = true;
     
-    if (article.image && !this.imageUrls[article.id]) {
-      this.downloadAndPreviewImage(article.id, article.image);
-    }
   }
 
   editArticle(item: ArticleDto) {
@@ -131,7 +169,7 @@ export class ArticleComponent implements OnInit, OnDestroy {
       statut: item.statut,
       rubriqueId: item.rubriqueId
     };
-    this.imagePreview = item.image ?  this.imageUrls[item.id] : null;
+    this.imagePreview = item.image ?  item.image : null;
     this.submitted = false;
     this.articleDialog = true;
   }
@@ -152,13 +190,14 @@ export class ArticleComponent implements OnInit, OnDestroy {
     if (!this.article.titre || !this.article.contenu || !this.article.statut) {
       return;
     }
-
+    this.loadingBtn = true;
     this.subs.add(
       this.service.saveArticle(this.selectedId, this.article, this.selectedFile || undefined).subscribe({
         next: () => {
           this.messageService.add({ severity: 'success', summary: 'Succès', detail: 'Article enregistré' });
           this.loadArticles();
           this.articleDialog = false;
+          this.loadingBtn = false;
         },
         error: (err) => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur serveur' })
       })
@@ -185,42 +224,7 @@ export class ArticleComponent implements OnInit, OnDestroy {
         );
       }
     });
-  }
-
-  get filteredArticles(): ArticleDto[] {
-    return this.articles.filter(article => {
-      
-      const searchLower = this.searchTerm.toLowerCase();
-      const matchesSearch = !this.searchTerm || 
-        article.titre.toLowerCase().includes(searchLower) || 
-        article.slug.toLowerCase().includes(searchLower) ||
-        article.rubriqueNom.toLowerCase().includes(searchLower);
-
-      const matchesStatut = this.selectedStatut === 'TOUT' || article.statut === this.selectedStatut;
-
-      let matchesDate = true;
-      if (this.selectedDate) {
-        const pubDate = new Date(article.datePublication);
-        matchesDate = pubDate.toDateString() === this.selectedDate.toDateString();
-      }
-
-      return matchesSearch && matchesStatut && matchesDate;
-    });
-  }
-
-  
- downloadAndPreviewImage(articleId: number, fileName: string) {
-  this.subs.add(
-    this.service.getDownloadUrl('articles', fileName).subscribe({
-      next: (blob) => {
-      
-        const objectUrl = URL.createObjectURL(blob);
-        this.imageUrls[articleId] = objectUrl;
-      },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Erreur', detail: 'Erreur de téléchargement image' })
-    })
-  );
-}
+  } 
 
 goBack(): void { 
   this.router.navigate(['/child/rubrique']);

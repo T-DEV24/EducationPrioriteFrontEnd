@@ -31,6 +31,8 @@ export class ContactComponent implements OnDestroy{
   private service = inject(JournalManagerService);
   private subs = new Subscription();
 
+  loadingBtn: boolean = false;
+
   contactForm: FormGroup = this.fb.group({
     nom: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
@@ -41,6 +43,7 @@ export class ContactComponent implements OnDestroy{
   onSubmit() {
     if (this.contactForm.valid) {
       const data: MessageContact = this.contactForm.value;
+      this.loadingBtn = true;
       this.subs.add(
         this.service.sendMessage(data).subscribe({
           next: () => {
@@ -49,6 +52,7 @@ export class ContactComponent implements OnDestroy{
               summary: 'Succès',
               detail: 'Message envoyé avec succès !'
             });
+            this.loadingBtn = false;
           },
           error: () => {
             this.messageService.add({
@@ -56,6 +60,7 @@ export class ContactComponent implements OnDestroy{
               summary: 'Erreur',
               detail: 'Une erreur est survenue lors de l\'envoi du message.'
             });
+            this.loadingBtn = false;
           }
         })
       );

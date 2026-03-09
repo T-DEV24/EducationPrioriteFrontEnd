@@ -1,85 +1,159 @@
 @if (user) {
-<div class="min-h-screen bg-[#f8fafc] font-['Segoe_UI'] flex flex-col gap-6 pb-12">
-  
-  <div class="mx-2 sm:mx-6 mt-6 p-4 sm:p-10 md:p-12 rounded-3xl bg-gradient-to-br from-[#e8354a] via-[#f87187] to-[#ffe4e6]">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
-      
-      <div class="flex flex-col gap-3 max-w-[520px]">
-        <span class="text-[0.65rem] font-extrabold tracking-widest uppercase text-white/75">
-          ADMINISTRATION
-        </span>
-        <h1 class="text-xl sm:text-3xl md:text-4xl font-black text-white leading-tight m-0">
-          Détails de l'utilisateur
-        </h1>
-        <p class="text-sm text-white/85 leading-relaxed m-0">
-          Consultez toutes les informations liées à ce compte utilisateur, son rôle et l'historique de création.
-        </p>
-        <div class="flex flex-wrap gap-3 mt-2">
-          
-          <button (click)="logout()" 
-            class="flex items-center gap-2 bg-white/20 text-white border border-white/45 rounded-xl px-6 py-3 font-bold text-sm cursor-pointer backdrop-blur-md transition-all hover:bg-white/30 active:scale-95">
-            <i class="pi pi-sign-out"></i> Se déconnecter
-          </button>
-        </div>
-      </div>
+<div class="min-h-screen bg-[#f8fafc] font-['Segoe_UI'] flex flex-col pb-12">
 
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 px-2 sm:px-6">
+  <!-- HERO BANNER -->
+  <div class="relative overflow-hidden bg-gradient-to-br from-[#e8354a] via-[#f05068] to-[#fb7185]">
     
-    <div >
-      
-      <div class="bg-white border border-[#e2e8f0] rounded-[1.25rem] p-2 sm:p-8 flex flex-col items-center gap-2 shadow-sm">
-        <div class="w-20 h-20 rounded-full flex items-center justify-center mb-2 overflow-hidden shrink-0" 
-             [style.background]="getAvatarColor(user.username)">
-          <span class="text-2xl font-black text-white uppercase tracking-wider">{{ getInitials(user.username) }}</span>
+    <!-- Cercles décoratifs -->
+    <div class="absolute -top-16 -right-16 w-64 h-64 bg-white/10 rounded-full blur-2xl"></div>
+    <div class="absolute -bottom-10 -left-10 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-white/5 rounded-full"></div>
+
+    <div class="relative z-10 px-4 sm:px-8 md:px-12 py-10 md:py-14">
+      <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center md:items-end justify-between gap-8">
+        
+        <!-- Avatar + infos -->
+        <div class="flex flex-col sm:flex-row items-center sm:items-end gap-5">
+          
+          <!-- Avatar grand format -->
+          <div class="relative shrink-0">
+            <div class="w-24 h-24 md:w-28 md:h-28 rounded-2xl flex items-center justify-center shadow-2xl border-4 border-white/30"
+                 [style.background]="getAvatarColor(user.username)">
+              <span class="text-3xl md:text-4xl font-black text-white uppercase">{{ getInitials(user.username) }}</span>
+            </div>
+            <!-- Badge statut -->
+            <div class="absolute -bottom-2 -right-2 w-6 h-6 bg-emerald-400 border-2 border-white rounded-full shadow-md"></div>
+          </div>
+
+          <!-- Nom + email -->
+          <div class="flex flex-col gap-1 text-center sm:text-left pb-1">
+            <span class="text-[0.62rem] font-extrabold tracking-[0.18em] uppercase text-white/60">Profil utilisateur</span>
+            <h1 class="text-2xl md:text-3xl font-black text-white m-0 leading-tight">{{ user.username }}</h1>
+            <p class="text-sm text-white/80 font-medium m-0">{{ user.email }}</p>
+            <span class="mt-1 inline-flex self-center sm:self-start items-center gap-1.5 bg-white/20 border border-white/30 backdrop-blur-sm text-white rounded-full px-3 py-1 text-[0.7rem] font-bold">
+              <i class="pi pi-shield text-[0.65rem]"></i>
+              {{ user.role === 'ADMIN' || user.role === 'SuperAdmin' ? 'Super administrateur' : user.role }}
+            </span>
+          </div>
         </div>
-        <h2 class="text-[1.1rem] font-extrabold text-[#1e293b] m-0">{{ user.username }}</h2>
-        <p class="text-[0.82rem] text-[#f87187] font-medium m-0">{{ user.email }}</p>
-        <span class="inline-flex items-center gap-1.5 bg-[#f8fafc] text-[#475569] border border-[#e2e8f0] rounded-full px-4 py-1.5 text-[0.75rem] font-bold mt-1">
-          <i class="pi pi-shield text-[#94a3b8] text-[0.7rem]"></i> 
-          {{ user.role === 'ADMIN' || user.role === 'SuperAdmin' ? 'Super administrateur' : user.role }}
-        </span>
 
-        <div class="w-full mt-5 pt-5 border-t border-[#f1f5f9] flex flex-col gap-3.5">
-          <div class="flex justify-between items-center gap-2">
-            <span class="text-[0.72rem] text-[#f87187] font-semibold">Créé le</span>
-            <span class="text-[0.78rem] text-[#334155] font-bold">{{ user.createdAt | date:'dd MMMM yyyy' }}</span>
-          </div>
-          <div class="flex justify-between items-center gap-2">
-            <span class="text-[0.72rem] text-[#f87187] font-semibold">Mise à jour</span>
-            <span class="text-[0.78rem] text-[#334155] font-bold">{{ user.updatedAt | date:'dd/MM/yy' }}</span>
-          </div>
-          <div class="flex justify-between items-center gap-2">
-            <span class="text-[0.72rem] text-[#f87187] font-semibold">Statut</span>
-           <span class="inline-flex items-center gap-1 px-3 py-1 bg-[#dcfce7] text-[#16a34a] border border-[#bbf7d0] rounded-full text-[0.72rem] font-extrabold">Actif</span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="bg-white border border-[#e2e8f0] rounded-[1.25rem] p-6 md:p-7 flex flex-wrap items-center justify-between gap-5 shadow-sm">
-      <div class="flex-1 min-w-[200px]">
-        <h3 class="text-[0.95rem] font-extrabold text-[#1e293b] m-0 mb-1.5">Zone sensible</h3>
-        <p class="hidden sm:inline text-[0.78rem] text-[#f87187] leading-relaxed m-0 max-w-[420px]">
-          Les actions ci-dessous impactent directement ce compte utilisateur. Elles peuvent être irréversibles.
-        </p>
-      </div>
-      <div class="flex flex-wrap gap-2.5">
-        <button (click)="edit()" 
-            class="flex items-center justify-center gap-2 w-full bg-white text-[#e8354a] border-none rounded-xl px-6 py-3 font-extrabold text-sm cursor-pointer transition-all hover:-translate-y-0.5 shadow-lg active:scale-95">
-            <i class="pi pi-pencil"></i> Modifier
-          </button>
-        <button (click)="confirmDelete()" class="flex items-center justify-center gap-1.5 w-full bg-[#e8354a] text-white border-1.5 border-[#e8354a] rounded-[0.625rem] px-4 py-2.5 text-[0.82rem] font-bold cursor-pointer hover:bg-[#c0253a] hover:border-[#c0253a] transition-all shadow-[0_4px_12px_rgba(232,53,74,0.3)] active:scale-95" *appHasRole="['ADMIN', 'USER']">
-          <i class="pi pi-trash text-[0.75rem]"></i> Supprimer le compte
+        <!-- Bouton déconnexion -->
+        <button (click)="logout()" 
+          class="shrink-0 flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white border border-white/30 rounded-xl px-5 py-2.5 font-bold text-sm backdrop-blur-sm transition-all active:scale-95">
+          <i class="pi pi-sign-out text-sm"></i> Se déconnecter
         </button>
       </div>
     </div>
-
   </div>
 
+  <!-- CONTENU PRINCIPAL -->
+  <div class="max-w-5xl mx-auto w-full px-4 sm:px-6 mt-6 flex flex-col gap-5">
+
+    <!-- Grille infos + actions -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+      <!-- Carte infos détaillées -->
+      <div class="md:col-span-2 bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+        
+        <div class="px-6 py-4 border-b border-slate-50 flex items-center gap-2">
+          <i class="pi pi-user text-[#e8354a] text-sm"></i>
+          <h2 class="text-[0.85rem] font-extrabold text-slate-800 m-0 uppercase tracking-wider">Informations du compte</h2>
+        </div>
+
+        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
+          
+          <!-- Nom d'utilisateur -->
+          <div class="flex flex-col gap-1.5 p-4 bg-slate-50 rounded-xl">
+            <span class="text-[0.65rem] font-bold uppercase tracking-wider text-[#f87187]">Nom d'utilisateur</span>
+            <span class="text-[0.9rem] font-bold text-slate-800">{{ user.username }}</span>
+          </div>
+
+          <!-- Email -->
+          <div class="flex flex-col gap-1.5 p-4 bg-slate-50 rounded-xl">
+            <span class="text-[0.65rem] font-bold uppercase tracking-wider text-[#f87187]">Adresse email</span>
+            <span class="text-[0.9rem] font-bold text-slate-800 truncate">{{ user.email }}</span>
+          </div>
+
+          <!-- Rôle -->
+          <div class="flex flex-col gap-1.5 p-4 bg-slate-50 rounded-xl">
+            <span class="text-[0.65rem] font-bold uppercase tracking-wider text-[#f87187]">Rôle</span>
+            <span class="inline-flex items-center gap-1.5 w-fit bg-red-50 text-[#e8354a] border border-red-100 rounded-full px-3 py-1 text-[0.75rem] font-extrabold">
+              <i class="pi pi-shield text-[0.65rem]"></i>
+              {{ user.role === 'ADMIN' ? 'administrateur' : user.role }}
+            </span>
+          </div>
+
+          <!-- Statut -->
+          <div class="flex flex-col gap-1.5 p-4 bg-slate-50 rounded-xl">
+            <span class="text-[0.65rem] font-bold uppercase tracking-wider text-[#f87187]">Statut</span>
+            <span class="inline-flex items-center gap-1.5 w-fit bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-full px-3 py-1 text-[0.75rem] font-extrabold">
+              <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> Actif
+            </span>
+          </div>
+
+          <!-- Créé le -->
+          <div class="flex flex-col gap-1.5 p-4 bg-slate-50 rounded-xl">
+            <span class="text-[0.65rem] font-bold uppercase tracking-wider text-[#f87187]">Créé le</span>
+            <span class="text-[0.9rem] font-bold text-slate-800">{{ user.createdAt | date:'dd MMMM yyyy' }}</span>
+          </div>
+
+          <!-- Mis à jour le -->
+          <div class="flex flex-col gap-1.5 p-4 bg-slate-50 rounded-xl">
+            <span class="text-[0.65rem] font-bold uppercase tracking-wider text-[#f87187]">Dernière mise à jour</span>
+            <span class="text-[0.9rem] font-bold text-slate-800">{{ user.updatedAt | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Colonne droite : actions -->
+      <div class="flex flex-col gap-5">
+
+        <!-- Carte actions rapides -->
+        <div class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden flex-1">
+          <div class="px-6 py-4 border-b border-slate-50 flex items-center gap-2">
+            <i class="pi pi-cog text-[#e8354a] text-sm"></i>
+            <h2 class="text-[0.85rem] font-extrabold text-slate-800 m-0 uppercase tracking-wider">Actions</h2>
+          </div>
+
+          <div class="p-5 flex flex-col gap-3">
+            <button (click)="edit()" 
+                class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#e8354a] to-[#f87187] text-white rounded-xl px-5 py-3 font-bold text-sm shadow-lg shadow-red-200 hover:shadow-red-300 hover:-translate-y-0.5 transition-all active:scale-95">
+              <i class="pi pi-pencil text-xs"></i> Modifier le profil
+            </button>
+
+            <button (click)="confirmDelete()" 
+                class="w-full flex items-center justify-center gap-2 bg-white text-red-500 border border-red-200 hover:bg-red-50 hover:border-red-400 rounded-xl px-5 py-3 font-bold text-sm transition-all active:scale-95"
+                *appHasRole="['ADMIN', 'USER']">
+              <i class="pi pi-trash text-xs"></i> Supprimer le compte
+            </button>
+          </div>
+        </div>
+
+        <!-- Carte sécurité -->
+        <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl shadow-sm overflow-hidden">
+          <div class="p-5 flex flex-col gap-3">
+            <div class="flex items-center gap-2 mb-1">
+              <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
+                <i class="pi pi-lock text-white text-sm"></i>
+              </div>
+              <span class="text-[0.8rem] font-extrabold text-white">Zone sensible</span>
+            </div>
+            <p class="text-[0.72rem] text-slate-400 leading-relaxed m-0">
+              Les actions ci-dessous impactent directement ce compte. Elles peuvent être irréversibles.
+            </p>
+            <div class="w-full h-px bg-white/10 my-1"></div>
+            <div class="flex items-center gap-2 text-[0.7rem] text-slate-400">
+              <i class="pi pi-shield text-emerald-400 text-xs"></i>
+              <span>Compte protégé</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- DIALOG modifier -->
   <p-dialog 
     [(visible)]="displayModal" 
     [modal]="true" 
@@ -100,9 +174,10 @@
   <p-confirmDialog />
   <p-toast />
 </div>
+
 } @else {
-  <div class="flex flex-col items-center justify-center min-h-[400px]">
-   
-    <p class="text-[#64748b] mt-4 font-medium italic">Chargement de votre profil...</p>
+  <div class="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+    <p-progress-spinner ariaLabel="loading" />
+    <p class="text-slate-400 text-sm font-medium italic">Chargement de votre profil...</p>
   </div>
 }

@@ -17,6 +17,8 @@ import { DropdownModule } from 'primeng/dropdown';
 import { TextareaModule } from 'primeng/textarea';
 import { DatePickerModule } from 'primeng/datepicker';
 import { HasRoleDirective } from '../../layouts/auth/has-role.directive';
+import { PaginatorModule } from 'primeng/paginator';
+import { ProgressSpinner } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-journal',
@@ -24,7 +26,7 @@ import { HasRoleDirective } from '../../layouts/auth/has-role.directive';
   imports: [
     CommonModule, FormsModule, ButtonModule, ToastModule, 
     ConfirmDialogModule, SelectButtonModule, DialogModule,DatePickerModule,
-    InputTextModule, TextareaModule, DropdownModule, HasRoleDirective
+    InputTextModule, TextareaModule, DropdownModule, HasRoleDirective, PaginatorModule, ProgressSpinner
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './journal.component.html',
@@ -35,16 +37,25 @@ export class JournalComponent implements OnInit, OnDestroy {
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private subs = new Subscription();
+  private searchTimeout: any;
+
+  loading: boolean = true;
+  loadingBtn: boolean = false;
+  currentPage = 0;
+  pageSize = 3;
+  totalElements = 0;
+  totalPages = 0;
 
   journals: JournalPdfDto[] = [];
   searchTerm: string = '';
   imageUrls: { [key: number]: string } = {};
 
   displayJournalDetails: boolean = false;
-  selectedJournal: JournalPdfDto | null = null;
-   selectedDate: Date | null = null;
+    selectedJournal: JournalPdfDto | null = null;
+    selectedStatut: string = StatutJournal.ACTIF; 
+    selectedDateDebut: Date | null = null;
+    selectedDateFin: Date | null = null;
 
-  selectedStatut: string = 'TOUT';
   statutOptions = [
     { label: 'Tous', value: 'TOUT' },
     { label: 'Actifs', value: StatutJournal.ACTIF },
@@ -70,26 +81,49 @@ export class JournalComponent implements OnInit, OnDestroy {
   }
 
   loadJournals() {
+    this.loading = true;
     const statutFilter = this.selectedStatut === 'TOUT' ? undefined : this.selectedStatut;
+
     this.subs.add(
-      this.service.getJournals(undefined, statutFilter).subscribe({
+      this.service.getJournals(
+        undefined,
+        statutFilter,
+        this.searchTerm,
+        this.selectedDateDebut ?? undefined,
+        this.selectedDateFin ?? undefined,
+        this.currentPage,
+        this.pageSize
+      ).subscribe({
         next: (data) => {
-          this.journals = data;
-          this.journals.forEach(j => {
-            if (j.imageCouverture) this.downloadCover(j.id, j.imageCouverture);
-          });
+          this.journals = data.content;
+          this.totalElements = data.totalElements;
+          this.totalPages = data.totalPages;
+          this.loading = false;
         },
-        error: () => this.showToast('error', 'Erreur', 'Impossible de charger les journaux')
+        error: () => {
+          this.loading = false;
+          this.showToast('error', 'Erreur', 'Impossible de charger les journaux');
+        }
       })
     );
   }
 
-  downloadCover(id: number, fileName: string) {
-    this.subs.add(
-      this.service.getDownloadUrl('journal', fileName).subscribe(blob => {
-        this.imageUrls[id] = URL.createObjectURL(blob);
-      })
-    );
+  onSearchChange() {
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => {
+      this.currentPage = 0;
+      this.loadJournals();
+    }, 400);
+  }
+
+  onFilterChange() {
+    this.currentPage = 0;
+    this.loadJournals();
+  }
+
+  onPageChange(event: any) {
+    this.currentPage = event.page;
+    this.loadJournals();
   }
 
   onFileChange(event: any, type: 'pdf' | 'cover') {
@@ -109,7 +143,7 @@ export class JournalComponent implements OnInit, OnDestroy {
   saveJournal() {
     this.submitted = true;
     if (!this.journal.titre || (!this.selectedId && !this.pdfFile)) return;
-
+    this.loadingBtn = true;
     this.subs.add(
       this.service.saveJournal(this.selectedId, this.journal, this.pdfFile || undefined, this.coverFile || undefined).subscribe({
         next: () => {
@@ -117,6 +151,7 @@ export class JournalComponent implements OnInit, OnDestroy {
           this.journalDialog = false;
           this.loadJournals();
           this.resetUploads();
+          this.loadingBtn = false;
         }
       })
     );
@@ -140,27 +175,44 @@ export class JournalComponent implements OnInit, OnDestroy {
     });
   }
 
-  downloadPdf(fileName: string | undefined): void {
-    if (!fileName) return;
-    
-    this.subs.add(
-      this.service.getDownloadUrl('journal', fileName).subscribe(blob => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = this.getShortFileName(fileName); // nom propre sans UUID
-        a.click();
-        URL.revokeObjectURL(url); // libère la mémoire
-      })
-    );
-  }
+   downloadPdf(fileUrl: string) {
+      if (!fileUrl) {
+        return;
+      }
 
-  openPdf(fileName: string) {
-    this.subs.add(this.service.getDownloadUrl('journal', fileName).subscribe(blob => {
-      const url = URL.createObjectURL(blob);
-      window.open(url, '_blank');
-    }));
-  }
+      this.service.downloadPdf(fileUrl).subscribe({
+        next: (blob: Blob) => {
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url); 
+        },
+        error: (err) => {
+          console.error('Erreur téléchargement:', err);
+          this.showToast('error', 'Erreur', 'Impossible de télécharger le PDF');
+        }
+      });
+    }
+
+   openPdf(fileUrl: string) {
+      if (!fileUrl) return;
+
+      this.service.downloadPdf(fileUrl).subscribe({
+        next: (blob: Blob) => {
+          const url = URL.createObjectURL(blob);
+          window.open(url, '_blank');
+          setTimeout(() => URL.revokeObjectURL(url), 5000); 
+        },
+        error: (err) => {
+          console.error('Erreur ouverture PDF:', err);
+          this.showToast('error', 'Erreur', 'Impossible d\'ouvrir le PDF');
+        }
+      });
+    }
 
   resetUploads() {
     this.pdfFile = null;
@@ -190,7 +242,7 @@ export class JournalComponent implements OnInit, OnDestroy {
       description: item.description
     };
 
-    this.coverPreview = this.imageUrls[item.id] || null;
+    this.coverPreview = item.imageCouverture ?  item.imageCouverture : null;;
     
     this.pdfFile = null;
     this.coverFile = null;
@@ -203,40 +255,12 @@ export class JournalComponent implements OnInit, OnDestroy {
     this.messageService.add({ severity, summary, detail });
   }
 
-  get filteredJournals() {
-    return this.journals.filter(j => {
-      const matchesSearch = j.titre.toLowerCase().includes(this.searchTerm.toLowerCase());
-
-      const matchesStatut = !this.selectedStatut || 
-                            this.selectedStatut === 'TOUT' || 
-                            j.statut === this.selectedStatut;
-
-      let matchesDate = true;
-      if (this.selectedDate) {
-        const journalDate = new Date(j.dateAjout).setHours(0, 0, 0, 0);
-        const filterDate = new Date(this.selectedDate).setHours(0, 0, 0, 0);
-        matchesDate = journalDate === filterDate;
-      }
-
-      return matchesSearch && matchesStatut && matchesDate;
-    });
-  }
-
-  getShortFileName(fileName: string | undefined): string {
-  if (!fileName) return 'Aucun fichier';
-  
-  // Supprime tout ce qui précède et inclut le dernier _ avant le vrai nom
-  // Gère les cas : UUID_nom.pdf / PDF_UUID_nom.pdf / prefix_UUID_nom.pdf
-  const uuidPattern = /^.*[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}_/i;
-  return fileName.replace(uuidPattern, '');
-}
-
   showDetails(journal: JournalPdfDto) {
     this.selectedJournal = journal;
     this.displayJournalDetails = true;
   }
 
-    goBack() {
+  goBack() {
     this.journalDialog = false; 
   }
 

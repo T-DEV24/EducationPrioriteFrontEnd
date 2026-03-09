@@ -5,7 +5,7 @@ import {
   ArticleDto, ArticleSaveDto, 
   JournalPdfDto, JournalPdfSaveDto, 
   RubriqueDto, RubriqueSaveDto, 
-  MessageContact 
+  MessageContact, Page 
 } from '../../model/model'; 
 import { environment } from '../../../environments/environment';
 
@@ -18,13 +18,30 @@ export class JournalManagerService {
 
   // --- ARTICLES ---
 
-  getArticles(id?: number, rubriqueId?: number, slug?: string, statut?: string): Observable<ArticleDto[]> {
+  getArticles( id?: number, rubriqueId?: number, search?: string, statut?: string, dateDebut?: Date, dateFin?: Date, page: number = 0, size: number = 10): Observable<Page<ArticleDto>> {
     let params = new HttpParams();
+
     if (id) params = params.set('id', id.toString());
     if (rubriqueId) params = params.set('rubriqueId', rubriqueId.toString());
-    if (slug) params = params.set('slug', slug);
+    if (search) params = params.set('search', search);
     if (statut) params = params.set('statut', statut);
-    return this.http.get<ArticleDto[]>(`${this.API_URL}/articles`, { params });
+
+    if (dateDebut) {
+      const debut = new Date(dateDebut);
+      debut.setHours(0, 0, 0, 0);
+      params = params.set('dateDebut', debut.toISOString());
+    }
+
+    if (dateFin) {
+      const fin = new Date(dateFin);
+      fin.setHours(23, 59, 59, 999);
+      params = params.set('dateFin', fin.toISOString());
+    }
+
+    params = params.set('page', page.toString());
+    params = params.set('size', size.toString());
+
+    return this.http.get<Page<ArticleDto>>(`${this.API_URL}/articles`, { params });
   }
 
   getArticleBySlug(slug: string): Observable<ArticleDto> {
@@ -55,11 +72,29 @@ export class JournalManagerService {
 
   // --- JOURNAUX PDF ---
 
-  getJournals(id?: number, statut?: string): Observable<JournalPdfDto[]> {
+  getJournals(id?: number, statut?: string, search?: string, dateDebut?: Date, dateFin?: Date, page: number = 0, size: number = 9): Observable<Page<JournalPdfDto>> {
     let params = new HttpParams();
+
     if (id) params = params.set('id', id.toString());
     if (statut) params = params.set('statut', statut);
-    return this.http.get<JournalPdfDto[]>(`${this.API_URL}/journal`, { params });
+    if (search) params = params.set('search', search);
+
+    if (dateDebut) {
+      const debut = new Date(dateDebut);
+      debut.setHours(0, 0, 0, 0);
+      params = params.set('dateDebut', debut.toISOString());
+    }
+
+    if (dateFin) {
+      const fin = new Date(dateFin);
+      fin.setHours(23, 59, 59, 999);
+      params = params.set('dateFin', fin.toISOString());
+    }
+
+    params = params.set('page', page.toString());
+    params = params.set('size', size.toString());
+
+    return this.http.get<Page<JournalPdfDto>>(`${this.API_URL}/journal`, { params });
   }
 
   saveJournal(id: number | null, journal: JournalPdfSaveDto, pdfFile?: File, coverFile?: File): Observable<JournalPdfDto> {
@@ -84,11 +119,13 @@ export class JournalManagerService {
 
   // --- RUBRIQUES ---
 
-  getRubriques(id?: number, slug?: string): Observable<RubriqueDto[]> {
+  getRubriques(id?: number, search?: string, page: number = 0, size: number = 10): Observable<Page<RubriqueDto>> {
     let params = new HttpParams();
     if (id) params = params.set('id', id.toString());
-    if (slug) params = params.set('slug', slug);
-    return this.http.get<RubriqueDto[]>(`${this.API_URL}/rubrique`, { params });
+    if (search) params = params.set('search', search);
+    params = params.set('page', page.toString());
+    params = params.set('size', size.toString());
+    return this.http.get<Page<RubriqueDto>>(`${this.API_URL}/rubrique`, { params });
   }
 
   createRubrique(rubrique: RubriqueSaveDto): Observable<RubriqueDto> {
@@ -111,9 +148,10 @@ export class JournalManagerService {
 
   // --- TÉLÉCHARGEMENT ---
 
-  getDownloadUrl(type: 'articles' | 'journal', fileName: string): Observable<Blob> {
-    return this.http.get(`${this.API_URL}/${type}/download/${fileName}`, { responseType: 'blob' });
+  downloadPdf(fileUrl: string): Observable<Blob> {
+    return this.http.get(`${this.API_URL}/download-pdf?fileUrl=${encodeURIComponent(fileUrl)}`, {
+      responseType: 'blob' 
+    });
   }
-
   
 }

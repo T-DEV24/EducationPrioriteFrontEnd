@@ -154,8 +154,8 @@
           <div class="journal-card" routerLink="/child/journal">
             <div class="journal-cover">
               <span class="journal-status" [class.active]="journal.statut === 'ACTIF'">{{ journal.statut }}</span>
-              @if (imageUrls['journal-' + journal.id]) {
-                <img [src]="imageUrls['journal-' + journal.id]" class="journal-cover-img" [alt]="journal.titre">
+              @if (journal.imageCouverture) {
+                <img [src]="journal.imageCouverture" class="journal-cover-img" [alt]="journal.titre">
               } @else {
                 <div class="journal-cover-placeholder"><i class="pi pi-book"></i></div>
               }
@@ -181,8 +181,8 @@
         @for (art of featuredArticles; track art.id) {
           <div class="article-card" [routerLink]="['/child/article', art.rubriqueId, art.rubriqueNom]">
             <div class="article-img-wrap">
-              @if (imageUrls['articles-' + art.id]) {
-                <img [src]="imageUrls['articles-' + art.id]" class="article-img" alt="">
+              @if (art.image) {
+                <img [src]="art.image" class="article-img" alt="">
               } @else {
                 <div class="article-img-placeholder"><i class="pi pi-image"></i></div>
               }

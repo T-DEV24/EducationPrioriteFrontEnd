@@ -49,12 +49,16 @@
       </div>
 
       <div class="pt-4">
-        <button pButton type="submit" 
-                label="Envoyer le message" 
-                icon="pi pi-send"
-                class="w-full py-4 !bg-[#e11d48] hover:!bg-red-600 !border-none text-lg font-bold shadow-lg transition-all transform active:scale-95">
-        </button>
-      </div>
+        <button type="submit" 
+          [disabled]="loadingBtn"
+          class="w-full py-4 bg-[#e11d48] hover:bg-red-600 text-white rounded-xl text-lg font-bold shadow-lg transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+        @if (loadingBtn) {
+          <i class="pi pi-spin pi-spinner"></i> Envoi en cours...
+        } @else {
+          <i class="pi pi-send"></i> Envoyer le message
+        }
+      </button>
+            </div>
     </form>
   </div>
 </div>

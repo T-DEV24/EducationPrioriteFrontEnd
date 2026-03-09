@@ -21,8 +21,6 @@ export class DashboardComponent implements OnInit {
 
   journals: JournalPdfDto[] = [];
   featuredArticles: ArticleDto[] = [];
-  
-  imageUrls: { [key: string]: string } = {};
 
   modules = [
     { title: 'Rubriques', icon: 'pi-th-large', color: 'bg-[#e11d48]', soft: 'bg-[#fff1f2]', text: 'text-[#e11d48]', num: '01', desc: 'Naviguez à travers nos grandes thématiques pédagogiques.', link: '/child/rubrique' },
@@ -38,34 +36,16 @@ export class DashboardComponent implements OnInit {
   loadData() {
     forkJoin({
    
-      journals: this.service.getJournals(undefined, 'ACTIF'),
+       journals: this.service.getJournals(undefined, 'ACTIF', undefined, undefined, undefined, 0, 3),
 
-      articles: this.service.getArticles(undefined, undefined, undefined, 'PUBLIE')
+       articles: this.service.getArticles(undefined, undefined, undefined, 'PUBLIE', undefined, undefined, 0, 4)
     }).subscribe({
       next: (res) => {
-
-        this.journals = res.journals.slice(0, 3);
-        this.featuredArticles = res.articles.slice(0, 4);
-
-        this.journals.forEach(j => {
-          if (j.imageCouverture) this.loadImage('journal', j.id, j.imageCouverture);
-        });
-
-        this.featuredArticles.forEach(a => {
-          if (a.image) this.loadImage('articles', a.id, a.image);
-        });
+         this.journals = res.journals.content;
+         this.featuredArticles = res.articles.content;
       }
     });
   }
-
-  loadImage(type: 'articles' | 'journal', id: number, fileName: string) {
-    this.service.getDownloadUrl(type, fileName).subscribe(blob => {
-      const key = `${type}-${id}`;
-      this.imageUrls[key] = URL.createObjectURL(blob);
-    });
-  }
-
-  
 
   get isAuthenticated(): boolean {
    return this.authService.isauthenticate();
