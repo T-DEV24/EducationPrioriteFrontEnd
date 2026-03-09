@@ -99,6 +99,7 @@ export class JournalComponent implements OnInit, OnDestroy {
           this.totalElements = data.totalElements;
           this.totalPages = data.totalPages;
           this.loading = false;
+          
         },
         error: () => {
           this.loading = false;
