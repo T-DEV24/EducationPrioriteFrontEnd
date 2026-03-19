@@ -64,7 +64,7 @@
       <!-- Image principale -->
       @if (article.image) {
         <figure class="mb-8 rounded-2xl overflow-hidden shadow-md border border-slate-100">
-          <img [src]="article.image" [alt]="article.titre" class="w-full object-cover max-h-[460px]">
+          <img [src]="article.image" [alt]="article.titre" class="w-full object-cover h-[250px] sm:h-[360px] lg:h-[400px]">
         </figure>
       }
 
@@ -86,12 +86,10 @@
         <div class="flex flex-col">
           @for (section of sections; track section.id) {
 
-            <!-- ══ Section avec image ══ -->
             @if (section.image) {
               <div class="group/section relative py-10"
                    [class.border-t]="!$first" [class.border-slate-100]="!$first">
 
-                <!-- Actions admin -->
                 <div class="absolute bottom-7 right-0 flex items-center gap-1.5 z-10
                              opacity-0 group-hover/section:opacity-100 transition-all duration-200"
                      *appHasRole="['ADMIN', 'SUPER_ADMIN']">
@@ -108,22 +106,17 @@
                 </div>
 
                 <div class="overflow-hidden">
-                  <div [ngClass]="$index % 2 === 0
-                    ? 'float-left mr-7 mb-3 sm:mb-0 mt-1'
-                    : 'float-right ml-7 mb-3 sm:mb-0 mt-1'"
-                       class="w-full sm:w-[260px] md:w-[320px] flex-shrink-0">
-                    <img [src]="section.image"
-                         [alt]="'Section ' + ($index + 1)"
-                         class="w-full h-[200px] sm:h-[220px] object-cover rounded-xl shadow-sm border border-slate-100/80">
-                   
-                  </div>
 
-                  <!-- Texte qui entoure l'image -->
                   @if (section.titre) {
-                        <h1 class="text-2xl sm:text-3xl md:text-xl font-extrabold text-slate-900 leading-tight mb-8 tracking-tight">
+                        <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight mb-8 tracking-tight">
                             {{ section.titre }}
                         </h1>
                     }
+
+                   <figure class="mb-8 rounded-2xl overflow-hidden shadow-md border border-slate-100">
+                      <img [src]="section.image" [alt]="section.titre" class="w-full object-cover h-[250px] sm:h-[360px] lg:h-[400px]">
+                    </figure>
+                  
                   <p class="text-[14px] sm:text-[15px] text-slate-700 leading-[1.9] text-justify">
                     {{ section.contenu }}
                   </p>
@@ -135,11 +128,11 @@
             } @else {
 
               <!-- ══ Section texte seul ══ -->
-              <div class="group/section relative py-10 flex items-start"
+              <div class="group/section relative py-10 flex flex-col items-start"
                    [class.border-t]="!$first" [class.border-slate-100]="!$first">
 
-                @if (!section.titre) {
-                    <h1 class="text-2xl sm:text-3xl md:text-xl font-extrabold text-slate-900 leading-tight mb-8 tracking-tight">
+                @if (section.titre) {
+                    <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900 leading-tight mb-8 tracking-tight">
                       {{ section.titre }}
                    </h1>
                 }
