@@ -1,4 +1,4 @@
 export const environment = {
-    production: false,
-    API_URL: 'http://localhost:8081'
+  production: true,
+  API_URL: 'https://coastal-carrissa-citytech237-334c2222.koyeb.app'
 };
